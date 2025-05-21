@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">FormulaTrackr</string>
+    <string name="app_fullname">FormulaTrackr: Schedule &amp; Result</string>
+    <string name="race">Race</string>
+    <string name="drivers">Drivers</string>
+    <string name="standings">Standings</string>
+    <string name="app_info">App Info</string>
+</resources>
