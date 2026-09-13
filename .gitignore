@@ -1,15 +1,60 @@
 *.iml
 .gradle
+local.properties
 /local.properties
+
+# Android Studio / IntelliJ
 /.idea/caches
 /.idea/libraries
 /.idea/modules.xml
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
+/.idea/deploymentTargetSelector.xml
+/.idea/codeStyles/
+/.idea/shelf/
+
+# OS
 .DS_Store
-/build
+Thumbs.db
+
+# Build outputs
+build/
+**/build/
 /captures
 .externalNativeBuild
 .cxx
-local.properties
+
+# Release & Keys
+*.jks
+*.keystore
+*.aab
+*.apk
+fastlane/play-console-key.json
+
+# Caches & Local Environments
+.kotlin/
+kotlin-js-store/
+.firebase/
+.agents/
+scratch/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Temporary files
+temp_*.xml
+scratch_*.xml
+appinfo_ui.xml
+temp_classes/
+temp_nav3/
+temp_navevent/
+temp_runtime/
+temp_runtime_classes/
+
+# Media & Visuals
+*.mp4
+*.png
+!docs/*.png
+!app/src/main/ic_launcher-playstore.png

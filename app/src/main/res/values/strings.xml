@@ -1,8 +1,9 @@
 <resources>
-    <string name="app_name">FormulaTrackr</string>
-    <string name="app_fullname">FormulaTrackr: Schedule &amp; Result</string>
+    <string name="app_name">PitWall</string>
+    <string name="app_fullname">PitWall: F1 Timing &amp; Telemetry</string>
     <string name="race">Race</string>
     <string name="drivers">Drivers</string>
     <string name="standings">Standings</string>
     <string name="app_info">App Info</string>
+    <string name="app_disclaimer">PitWall is an unofficial motorsport companion and is not associated in any way with the Formula 1 group of companies. F1, FORMULA ONE, FORMULA 1, FIA FORMULA ONE WORLD CHAMPIONSHIP, GRAND PRIX and related marks are trade marks of Formula One Licensing B.V.</string>
 </resources>

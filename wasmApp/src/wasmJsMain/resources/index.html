@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PitWall: F1 Timing &amp; Telemetry</title>
+    <meta name="description" content="Next-gen live timing, telemetry deltas, sector speeds &amp; race calendar for F1.">
+    <meta name="keywords" content="pitwall, f1 timing, f1 telemetry, motorsport telemetry, race timing, f1 live timing">
+    <meta name="author" content="PitWall Team">
+    <meta property="og:title" content="PitWall: F1 Timing &amp; Telemetry">
+    <meta property="og:description" content="Next-gen live timing, telemetry deltas, sector speeds &amp; race calendar for F1.">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#E10600">
+    <!-- Trademark Disclaimer: Unofficial enthusiast app under nominative fair use -->
+    <meta name="disclaimer" content="PitWall is an unofficial motorsport companion and is not associated in any way with Formula 1 or Formula One Licensing B.V. F1, FORMULA ONE, FORMULA 1, FIA FORMULA ONE WORLD CHAMPIONSHIP, GRAND PRIX and related marks are trademarks of Formula One Licensing B.V.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #060709;
+            color: #FFFFFF;
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            overflow: hidden;
+            user-select: none;
+        }
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 28px;
+            text-align: center;
+        }
+        .pitwall-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: 3px;
+            font-weight: 900;
+            font-size: 30px;
+        }
+        .pitwall-badge {
+            background: #E10600;
+            color: #FFFFFF;
+            padding: 6px 16px;
+            border-radius: 6px;
+            font-size: 20px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            box-shadow: 0 0 24px rgba(225, 6, 0, 0.45);
+        }
+        .spinner-track {
+            position: relative;
+            width: 68px;
+            height: 68px;
+        }
+        .spinner {
+            width: 68px;
+            height: 68px;
+            border: 4px solid rgba(255, 255, 255, 0.08);
+            border-top-color: #E10600;
+            border-right-color: #E10600;
+            border-radius: 50%;
+            filter: drop-shadow(0 0 8px rgba(225, 6, 0, 0.5));
+            animation: spin 0.75s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+        .loading-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 2.5px;
+            color: #A0AEC0;
+            text-transform: uppercase;
+        }
+        .loading-subtext {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            color: #4A5568;
+            margin-top: -16px;
+            text-transform: uppercase;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">
+        <div class="pitwall-logo">
+            <span class="pitwall-badge">PIT</span>
+            <span>WALL</span>
+        </div>
+        <div class="spinner-track">
+            <div class="spinner"></div>
+        </div>
+        <span class="loading-text">INITIALIZING WASM HIGH-PERFORMANCE ENGINE...</span>
+        <span class="loading-subtext">60 FPS RACING TELEMETRY &bull; REAL-TIME PITWALL PROTOCOL</span>
+    </div>
+    <script src="wasmApp.js?v=20260912_0425"></script>
+</body>
+</html>
+

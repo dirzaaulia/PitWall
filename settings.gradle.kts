@@ -11,13 +11,18 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "0.10.0"
+}
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
     repositories {
         google()
         mavenCentral()
     }
 }
 
-rootProject.name = "Formula 1"
+rootProject.name = "FormulaTrackr"
 include(":app")
+include(":shared")
+include(":wasmApp")

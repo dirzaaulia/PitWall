@@ -396,7 +396,7 @@ fun getRaceTypeByIndex(
     index: Int
 ): String? {
     if (schedule == null) return null
-    val isSprint = schedule.sprintQualy.time != null
+    val isSprint = schedule.sprintQualy?.time != null
     return if (!isSprint) {
         when (index) {
             0 -> "Practice 1"
@@ -423,7 +423,7 @@ fun getRaceDateByIndex(
     index: Int
 ): RaceDate? {
     if (schedule == null) return null
-    val isSprint = schedule.sprintQualy.time != null
+    val isSprint = schedule.sprintQualy?.time != null
     return if (!isSprint) {
         when (index) {
             0 -> schedule.fp1

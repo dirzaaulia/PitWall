@@ -19,7 +19,7 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuAnchorType.Companion.PrimaryNotEditable
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -99,7 +99,7 @@ fun RaceResult(
                         // the anchor type `PrimaryNotEditable`.
                         modifier = Modifier
                             .fillMaxWidth()
-                            .menuAnchor(PrimaryNotEditable, true),
+                            .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true),
                         readOnly = true,
                         singleLine = true,
                         label = { Text("Session") },

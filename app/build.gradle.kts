@@ -29,8 +29,8 @@ android {
         applicationId = "com.dirzaaulia.formula1"
         minSdk = 29
         targetSdk = 36
-        versionCode = 2
-        versionName = "1.0"
+        versionCode = project.findProperty("VERSION_CODE")?.toString()?.toIntOrNull() ?: 2
+        versionName = project.findProperty("VERSION_NAME")?.toString() ?: "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -59,6 +59,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":shared"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

@@ -2,7 +2,7 @@
 <resources>
     <style name="Theme.FormulaOne.SplashScreen" parent="Theme.SplashScreen">
         <!-- Set the splash screen background, animated icon, and animation duration. -->
-        <item name="windowSplashScreenBackground">#424242</item>
+        <item name="windowSplashScreenBackground">#050508</item>
 
         <!-- Use windowSplashScreenAnimatedIcon to add either a drawable or an
              animated drawable. One of these is required. -->
@@ -12,15 +12,13 @@
 
         <!-- Set the theme of the Activity that directly follows your splash screen. -->
         <!-- Required -->
-        <item name="postSplashScreenTheme">@style/Theme.GameWish</item>
+        <item name="postSplashScreenTheme">@style/Theme.Material.DayNight.NoActionBar</item>
     </style>
 
     <style name="Theme.Material.DayNight.NoActionBar" parent="@android:style/Theme.Material.Light.NoActionBar" />
 
     <style name="Theme.GameWish" parent="@style/Theme.Material.DayNight.NoActionBar">
-        <item name="android:colorPrimary">#FF616161</item>
-        <item name="android:colorAccent">#FF424242</item>
-<!--        <item name="android:statusBarColor">@color/immersive_sys_ui</item>-->
-<!--        <item name="android:navigationBarColor">@color/nav_bar</item>\-->
+        <item name="android:colorPrimary">#B82E2E</item>
+        <item name="android:colorAccent">#B82E2E</item>
     </style>
 </resources>

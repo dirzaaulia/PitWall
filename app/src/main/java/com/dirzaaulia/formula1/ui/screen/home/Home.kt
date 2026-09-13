@@ -46,7 +46,9 @@ fun HomeScreen(
 ) {
     Scaffold(modifier = Modifier.fillMaxSize()) { padding ->
         AnimatedLazyColumn(
-            modifier = Modifier.padding(padding),
+            modifier = Modifier
+                .padding(padding)
+                .padding(horizontal = 12.dp, vertical = 8.dp),
             isAnimationFinished = viewModel.isInitialAnimationFinished,
             navigateToRace = {
                 viewModel.isInitialAnimationFinished = true
