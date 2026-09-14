@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -25,7 +26,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -37,24 +37,21 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Dashboard
-import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Leaderboard
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material.icons.filled.Sensors
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.filled.Speed
-import androidx.compose.material.icons.filled.Timeline
+import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -63,6 +60,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
@@ -87,31 +85,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dirzaaulia.formula1.model.LiveTimingDriverState
-import com.dirzaaulia.formula1.ui.component.CircuitVectorFallback
-import com.dirzaaulia.formula1.ui.component.FormulaTrackrImage
-import com.dirzaaulia.formula1.ui.component.ShimmerCard
-import com.dirzaaulia.formula1.ui.component.shimmerBrush
-import com.dirzaaulia.formula1.util.getDriverHeadshotUrl
-import com.dirzaaulia.formula1.util.getTeamCarUrl
-import com.dirzaaulia.formula1.util.getCountryFlagUrl
-import com.dirzaaulia.formula1.util.TelemetryPhysicsEngine
 import com.dirzaaulia.formula1.model.OpenF1Driver
 import com.dirzaaulia.formula1.model.OpenF1Lap
-import com.dirzaaulia.formula1.model.OpenF1Position
 import com.dirzaaulia.formula1.model.OpenF1RaceControl
 import com.dirzaaulia.formula1.model.OpenF1Stint
 import com.dirzaaulia.formula1.model.OpenF1TeamRadio
 import com.dirzaaulia.formula1.model.OpenF1Weather
 import com.dirzaaulia.formula1.model.Race
 import com.dirzaaulia.formula1.model.SectorStatus
+import com.dirzaaulia.formula1.network.F1LiveTimingService
 import com.dirzaaulia.formula1.network.JolpicaNetworkService
 import com.dirzaaulia.formula1.network.OpenF1Service
 import com.dirzaaulia.formula1.theme.F1Red
@@ -119,12 +109,10 @@ import com.dirzaaulia.formula1.theme.F1RedSubtle
 import com.dirzaaulia.formula1.theme.GlassBorder
 import com.dirzaaulia.formula1.theme.GlassBorderActive
 import com.dirzaaulia.formula1.theme.GlassSurface
-import com.dirzaaulia.formula1.theme.GlassSurfaceElevated
 import com.dirzaaulia.formula1.theme.HairlineBorder
 import com.dirzaaulia.formula1.theme.MonoMuted
 import com.dirzaaulia.formula1.theme.MonoSilver
 import com.dirzaaulia.formula1.theme.MonoWhite
-import com.dirzaaulia.formula1.theme.TextMuted
 import com.dirzaaulia.formula1.theme.ObsidianSurface
 import com.dirzaaulia.formula1.theme.ObsidianSurfaceElevated
 import com.dirzaaulia.formula1.theme.ObsidianVoid
@@ -132,14 +120,25 @@ import com.dirzaaulia.formula1.theme.PitchBlack
 import com.dirzaaulia.formula1.theme.TelemetryGreen
 import com.dirzaaulia.formula1.theme.TelemetryPurple
 import com.dirzaaulia.formula1.theme.TelemetryYellow
+import com.dirzaaulia.formula1.theme.TextMuted
 import com.dirzaaulia.formula1.theme.TyreHard
 import com.dirzaaulia.formula1.theme.TyreIntermediate
 import com.dirzaaulia.formula1.theme.TyreMedium
 import com.dirzaaulia.formula1.theme.TyreSoft
 import com.dirzaaulia.formula1.theme.TyreWet
+import com.dirzaaulia.formula1.ui.component.FormulaTrackrImage
+import com.dirzaaulia.formula1.ui.component.ShimmerCard
+import com.dirzaaulia.formula1.ui.component.shimmerBrush
+import com.dirzaaulia.formula1.ui.dialog.F1LoginDialog
+import com.dirzaaulia.formula1.ui.screen.home.NextRaceCountdownCard
 import com.dirzaaulia.formula1.util.ArchiveRaceOption
 import com.dirzaaulia.formula1.util.TelemetryDataManager
-import com.dirzaaulia.formula1.ui.screen.home.NextRaceCountdownCard
+import com.dirzaaulia.formula1.util.TelemetryPhysicsEngine
+import com.dirzaaulia.formula1.util.getCountryFlagUrl
+import com.dirzaaulia.formula1.util.getDriverHeadshotUrl
+import com.dirzaaulia.formula1.util.getTeamCarUrl
+import com.dirzaaulia.formula1.util.parseUtcDateTimeToEpochMillis
+import io.ktor.util.date.GMTDate
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withTimeoutOrNull
@@ -162,17 +161,18 @@ enum class TelemetryLayoutMode {
 
 @Composable
 fun TelemetryScreen(selectedSeason: Int) {
-    var mode by remember { mutableStateOf(TelemetryMode.LIVE) }
+    var mode by remember { mutableStateOf(TelemetryMode.ARCHIVE) }
     var archiveSubView by remember { mutableStateOf(ArchiveSubView.TIMING_TABLE) }
     var layoutMode by remember { mutableStateOf(TelemetryLayoutMode.SPLIT) }
 
-    // Selected Race Option (LIVE defaults to Spanish GP Catalunya, ARCHIVE allows picking Monza, etc.)
+    // Selected Race Option (Defaults to latest completed Grand Prix)
     var selectedRace by remember {
-        mutableStateOf(TelemetryDataManager.LIVE_2026_RACE)
+        mutableStateOf(TelemetryDataManager.OFFICIAL_2026_RACES.first())
     }
     var showRaceSelectorModal by remember { mutableStateOf(false) }
+    var showF1LoginModal by remember { mutableStateOf(false) }
     var isLiveActive by remember { mutableStateOf(false) }
-    var activeSessionName by remember { mutableStateOf("Spanish Grand Prix - Qualifying") }
+    var activeSessionName by remember { mutableStateOf("Spanish Grand Prix - Race") }
     var nextRoundRace by remember { mutableStateOf<Race?>(null) }
 
     // CRITICAL: Initial telemetry archive STARTS FROM LAP 1 (0.0f)
@@ -255,9 +255,19 @@ fun TelemetryScreen(selectedSeason: Int) {
         try {
             withTimeoutOrNull(3000L) {
                 val (isLive, liveMeeting) = OpenF1Service.checkF1OfficialLiveStatus()
+                // Only consider active if live session is actually streaming on track
                 isLiveActive = isLive
-                if (liveMeeting.isNotBlank()) {
-                    activeSessionName = liveMeeting
+                if (isLiveActive) {
+                    mode = TelemetryMode.LIVE
+                    selectedRace = TelemetryDataManager.LIVE_2026_RACE
+                    if (liveMeeting.isNotBlank()) {
+                        activeSessionName = liveMeeting
+                    }
+                } else {
+                    // Race is finished or inactive: Keep on ARCHIVE mode with latest race
+                    mode = TelemetryMode.ARCHIVE
+                    selectedRace = TelemetryDataManager.OFFICIAL_2026_RACES.first()
+                    activeSessionName = "2026 ${selectedRace.name} (${selectedRace.circuitShortName} - Archive)"
                 }
             }
 
@@ -267,7 +277,7 @@ fun TelemetryScreen(selectedSeason: Int) {
                 }
             }
         } catch (_: Throwable) {
-            // Keep safe fallback, never block UI
+            mode = TelemetryMode.ARCHIVE
         }
     }
 
@@ -293,7 +303,7 @@ fun TelemetryScreen(selectedSeason: Int) {
                 isLiveActive = false
             }
         } else {
-            // Archive defaults to last completed race: Round 13 Italian Grand Prix at Monza
+            // Archive defaults to last completed race
             selectedRace = TelemetryDataManager.OFFICIAL_2026_RACES.first()
             activeSessionName = "2026 ${selectedRace.name} (${selectedRace.circuitShortName} - Archive)"
             raceProgressFloat = 0.0f
@@ -451,10 +461,11 @@ fun TelemetryScreen(selectedSeason: Int) {
                     onToggleTimingTable = { showTimingTable = !showTimingTable },
                     onToggleCircuitRadar = { showCircuitRadar = !showCircuitRadar },
                     onOpenRaceSelector = { showRaceSelectorModal = true },
-                    onModeChange = {
-                        mode = it
-                        if (it == TelemetryMode.LIVE) {
+                    onModeChange = { requestedMode ->
+                        mode = requestedMode
+                        if (requestedMode == TelemetryMode.LIVE) {
                             isPlaying = false
+                            selectedRace = TelemetryDataManager.LIVE_2026_RACE
                         } else {
                             selectedRace = TelemetryDataManager.OFFICIAL_2026_RACES.first()
                             activeSessionName = "2026 ${selectedRace.name} (${selectedRace.circuitShortName} - Archive)"
@@ -476,28 +487,29 @@ fun TelemetryScreen(selectedSeason: Int) {
                         raceProgressFloat = (raceProgressFloat.toInt() + step).toFloat().coerceIn(0f, totalLaps.toFloat() - 1f)
                     },
                     mobileViewTab = mobileViewTab,
-                    onMobileViewTabChange = { mobileViewTab = it }
+                    onMobileViewTabChange = { mobileViewTab = it },
+                    onOpenF1Login = { showF1LoginModal = true }
                 )
 
             if (mode == TelemetryMode.LIVE && !isLiveActive) {
-                // If there is no active session on track, show ONLY the countdown card to next session
+                // If there is no active session on track, show the countdown card to next session
                 val activeNextRace = nextRoundRace ?: Race(
-                    raceName = "Spanish Grand Prix",
-                    round = 14,
-                    date = "2026-09-13",
-                    time = "13:00:00Z",
+                    raceName = "Azerbaijan Grand Prix",
+                    round = 15,
+                    date = "2026-09-20",
+                    time = "11:00:00Z",
                     circuit = com.dirzaaulia.formula1.model.Circuit(
-                        circuitId = "madring-1",
-                        circuitName = "Madring",
-                        country = "Spain",
-                        location = "Madrid"
+                        circuitId = "baku",
+                        circuitName = "Baku City Circuit",
+                        country = "Azerbaijan",
+                        location = "Baku"
                     ),
                     schedule = com.dirzaaulia.formula1.model.RaceSchedule(
-                        fp1 = com.dirzaaulia.formula1.model.RaceDate("2026-09-11", "11:30:00Z"),
-                        fp2 = com.dirzaaulia.formula1.model.RaceDate("2026-09-11", "15:00:00Z"),
-                        fp3 = com.dirzaaulia.formula1.model.RaceDate("2026-09-12", "10:30:00Z"),
-                        qualy = com.dirzaaulia.formula1.model.RaceDate("2026-09-12", "14:00:00Z"),
-                        race = com.dirzaaulia.formula1.model.RaceDate("2026-09-13", "13:00:00Z")
+                        fp1 = com.dirzaaulia.formula1.model.RaceDate("2026-09-18", "09:30:00Z"),
+                        fp2 = com.dirzaaulia.formula1.model.RaceDate("2026-09-18", "13:00:00Z"),
+                        fp3 = com.dirzaaulia.formula1.model.RaceDate("2026-09-19", "08:30:00Z"),
+                        qualy = com.dirzaaulia.formula1.model.RaceDate("2026-09-19", "12:00:00Z"),
+                        race = com.dirzaaulia.formula1.model.RaceDate("2026-09-20", "11:00:00Z")
                     )
                 )
                 LiveIdleCountdownSection(
@@ -509,6 +521,7 @@ fun TelemetryScreen(selectedSeason: Int) {
                         raceProgressFloat = 0.0f
                         isPlaying = false
                     },
+                    onOpenF1Login = { showF1LoginModal = true },
                     isCompact = !isWidescreen
                 )
             } else {
@@ -682,7 +695,7 @@ fun TelemetryScreen(selectedSeason: Int) {
 
     // ARCHIVE RACE SELECTOR MODAL DIALOG
     if (showRaceSelectorModal) {
-        ArchiveRaceSelectorDialog(
+        ArchiveRaceSelectorBottomSheet(
             races = TelemetryDataManager.OFFICIAL_2026_RACES,
             selectedRace = selectedRace,
             onSelectRace = { race ->
@@ -692,6 +705,16 @@ fun TelemetryScreen(selectedSeason: Int) {
                 showRaceSelectorModal = false
             },
             onDismiss = { showRaceSelectorModal = false }
+        )
+    }
+
+    if (showF1LoginModal) {
+        F1LoginDialog(
+            onDismiss = { showF1LoginModal = false },
+            onTokenReceived = { token ->
+                showF1LoginModal = false
+                isLiveActive = true
+            }
         )
     }
 
@@ -706,6 +729,7 @@ fun TelemetryScreen(selectedSeason: Int) {
 private fun LiveIdleCountdownSection(
     nextRace: Race,
     onSwitchToReplay: () -> Unit,
+    onOpenF1Login: () -> Unit,
     isCompact: Boolean
 ) {
     Column(
@@ -784,21 +808,51 @@ private fun LiveIdleCountdownSection(
 
                 Spacer(Modifier.height(14.dp))
 
-                // Actions Row
-                Button(
-                    onClick = onSwitchToReplay,
-                    colors = ButtonDefaults.buttonColors(containerColor = F1Red),
-                    shape = RoundedCornerShape(10.dp),
-                    modifier = Modifier.fillMaxWidth()
+                // Actions Row: Connect F1 & 2026 Replay
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    Icon(Icons.Default.History, contentDescription = null, modifier = Modifier.size(13.dp))
-                    Spacer(Modifier.width(6.dp))
-                    Text(
-                        text = "2026 REPLAY",
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Black,
-                        fontFamily = FontFamily.Monospace
-                    )
+                    Button(
+                        onClick = onOpenF1Login,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (F1LiveTimingService.isConnected()) Color(0xFF00E676) else Color(0xFF1E2330)
+                        ),
+                        border = BorderStroke(1.dp, if (F1LiveTimingService.isConnected()) Color(0xFF00E676) else Color(0x40FFFFFF)),
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(
+                            imageVector = if (F1LiveTimingService.isConnected()) Icons.Default.Check else Icons.Default.Lock,
+                            contentDescription = null,
+                            tint = if (F1LiveTimingService.isConnected()) PitchBlack else MonoWhite,
+                            modifier = Modifier.size(13.dp)
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Text(
+                            text = if (F1LiveTimingService.isConnected()) "F1 LINKED" else "CONNECT F1",
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Black,
+                            fontFamily = FontFamily.Monospace,
+                            color = if (F1LiveTimingService.isConnected()) PitchBlack else MonoWhite
+                        )
+                    }
+
+                    Button(
+                        onClick = onSwitchToReplay,
+                        colors = ButtonDefaults.buttonColors(containerColor = F1Red),
+                        shape = RoundedCornerShape(10.dp),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(Icons.Default.History, contentDescription = null, modifier = Modifier.size(13.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text(
+                            text = "2026 REPLAY",
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Black,
+                            fontFamily = FontFamily.Monospace
+                        )
+                    }
                 }
             }
         }
@@ -894,6 +948,7 @@ private fun DynamicIslandPlayer(
     onStepLaps: (Int) -> Unit,
     mobileViewTab: ArchiveSubView = ArchiveSubView.TIMING_TABLE,
     onMobileViewTabChange: (ArchiveSubView) -> Unit = {},
+    onOpenF1Login: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -969,7 +1024,8 @@ private fun DynamicIslandPlayer(
                     Row(
                         modifier = Modifier
                             .clip(RoundedCornerShape(20.dp))
-                            .background(Color(0x18FFFFFF))
+                            .background(Color(0x20FFFFFF))
+                            .border(1.dp, Color(0x35FFFFFF), RoundedCornerShape(20.dp))
                             .clickable { onOpenRaceSelector() }
                             .padding(horizontal = 10.dp, vertical = 5.dp),
                         verticalAlignment = Alignment.CenterVertically,
@@ -984,12 +1040,17 @@ private fun DynamicIslandPlayer(
                                 .clip(RoundedCornerShape(2.dp))
                         )
                         Text(
-                            text = "${selectedRace.circuitShortName} • Rd ${selectedRace.round}",
+                            text = "${selectedRace.name} • L$currentLap/$totalLaps",
                             color = Color.White,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold
                         )
-                        Icon(Icons.Default.KeyboardArrowDown, null, tint = Color(0xFF8E95A5), modifier = Modifier.size(13.dp))
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowDown,
+                            contentDescription = "Select Grand Prix",
+                            tint = Color(0xFF00E5FF),
+                            modifier = Modifier.size(15.dp)
+                        )
                     }
 
                     // Lap Counter Pill
@@ -1271,6 +1332,32 @@ private fun DynamicIslandPlayer(
                                 )
                             }
                         }
+
+                        // F1 Login Pill (Always visible & accessible in both modes)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(5.dp),
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(14.dp))
+                                .background(if (F1LiveTimingService.isConnected()) Color(0x2200E676) else Color(0x18FFFFFF))
+                                .border(1.dp, if (F1LiveTimingService.isConnected()) Color(0xFF00E676) else Color(0x30FFFFFF), RoundedCornerShape(14.dp))
+                                .clickable { onOpenF1Login() }
+                                .padding(horizontal = 8.dp, vertical = 5.dp)
+                        ) {
+                            Icon(
+                                imageVector = if (F1LiveTimingService.isConnected()) Icons.Default.Check else Icons.Default.Lock,
+                                contentDescription = null,
+                                tint = if (F1LiveTimingService.isConnected()) Color(0xFF00E676) else Color(0xFFCAD1E0),
+                                modifier = Modifier.size(11.dp)
+                            )
+                            Text(
+                                text = if (F1LiveTimingService.isConnected()) "F1 LINKED" else "F1 LOGIN",
+                                color = if (F1LiveTimingService.isConnected()) Color(0xFF00E676) else Color(0xFFCAD1E0),
+                                fontSize = 8.5.sp,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = FontFamily.Monospace
+                            )
+                        }
                     }
                 }
             }
@@ -1328,28 +1415,63 @@ private fun DynamicIslandPlayer(
                                 )
                             }
                         }
-                        Text(
-                            text = if (mode == TelemetryMode.LIVE && !isLiveActive) "${selectedRace.circuitShortName} • Standby"
-                                   else "${selectedRace.circuitShortName} • L$currentLap/$totalLaps",
-                            color = Color.White,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.clickable { onOpenRaceSelector() }
-                        )
-                    }
-
-                    // Right: Focused Driver Pill (OR Countdown badge when idle)
-                    if (mode == TelemetryMode.LIVE && !isLiveActive) {
-                        Box(
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(5.dp),
                             modifier = Modifier
                                 .clip(RoundedCornerShape(12.dp))
-                                .background(Color(0x22FFB300))
-                                .border(1.dp, Color(0x44FFB300), RoundedCornerShape(12.dp))
-                                .padding(horizontal = 7.dp, vertical = 3.dp)
+                                .background(Color(0x22FFFFFF))
+                                .border(1.dp, Color(0x35FFFFFF), RoundedCornerShape(12.dp))
+                                .clickable { onOpenRaceSelector() }
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
                         ) {
+                            FormulaTrackrImage(
+                                url = getCountryFlagUrl(selectedRace.country),
+                                contentDescription = selectedRace.country,
+                                modifier = Modifier
+                                    .height(11.dp)
+                                    .width(16.dp)
+                                    .clip(RoundedCornerShape(2.dp))
+                            )
                             Text(
-                                text = "STANDBY",
-                                color = Color(0xFFFFB300),
+                                text = "${selectedRace.name} • L$currentLap/$totalLaps",
+                                color = Color.White,
+                                fontSize = 10.5.sp,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.weight(1f, fill = false)
+                            )
+                            Icon(
+                                imageVector = Icons.Default.KeyboardArrowDown,
+                                contentDescription = "Select Grand Prix",
+                                tint = Color(0xFF00E5FF),
+                                modifier = Modifier.size(15.dp)
+                            )
+                        }
+                    }
+
+                    // Right: In LIVE mode show F1 LOGIN button, or Driver Pill in ARCHIVE mode
+                    if (mode == TelemetryMode.LIVE) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(if (F1LiveTimingService.isConnected()) Color(0x2200E676) else Color(0x22FFB300))
+                                .border(1.dp, if (F1LiveTimingService.isConnected()) Color(0xFF00E676) else Color(0x44FFB300), RoundedCornerShape(12.dp))
+                                .clickable { onOpenF1Login() }
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Icon(
+                                imageVector = if (F1LiveTimingService.isConnected()) Icons.Default.Check else Icons.Default.Lock,
+                                contentDescription = null,
+                                tint = if (F1LiveTimingService.isConnected()) Color(0xFF00E676) else Color(0xFFFFB300),
+                                modifier = Modifier.size(11.dp)
+                            )
+                            Text(
+                                text = if (F1LiveTimingService.isConnected()) "F1 LINKED" else "F1 LOGIN",
+                                color = if (F1LiveTimingService.isConnected()) Color(0xFF00E676) else Color(0xFFFFB300),
                                 fontSize = 8.5.sp,
                                 fontWeight = FontWeight.Black,
                                 fontFamily = FontFamily.Monospace
@@ -1381,93 +1503,96 @@ private fun DynamicIslandPlayer(
                     }
                 }
 
-                // Row 2: View Toggles & Replay Bar (Only if active session or archive)
-                if (mode == TelemetryMode.ARCHIVE || isLiveActive) {
+                // Row 2: View Toggles & Replay Bar / Live Status (Always visible)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Compact Subview Switcher: TIMING vs CIRCUIT
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(Color(0xFF141722))
+                            .border(1.dp, Color(0x30FFFFFF), RoundedCornerShape(16.dp))
+                            .padding(2.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Compact Subview Switcher: TIMETABLE vs CIRCUIT
-                        Row(
+                        val isTable = mobileViewTab == ArchiveSubView.TIMING_TABLE
+                        Box(
                             modifier = Modifier
-                                .clip(RoundedCornerShape(16.dp))
-                                .background(Color(0xFF141722))
-                                .border(1.dp, Color(0x30FFFFFF), RoundedCornerShape(16.dp))
-                                .padding(2.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(if (isTable) F1Red else Color.Transparent)
+                                .clickable { onMobileViewTabChange(ArchiveSubView.TIMING_TABLE) }
+                                .padding(horizontal = 7.dp, vertical = 3.dp)
                         ) {
-                            val isTable = mobileViewTab == ArchiveSubView.TIMING_TABLE
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .background(if (isTable) F1Red else Color.Transparent)
-                                    .clickable { onMobileViewTabChange(ArchiveSubView.TIMING_TABLE) }
-                                    .padding(horizontal = 7.dp, vertical = 3.dp)
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(3.dp)
                             ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(3.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Schedule,
-                                        contentDescription = null,
-                                        tint = if (isTable) Color.White else Color(0xFF8E95A5),
-                                        modifier = Modifier.size(10.dp)
-                                    )
-                                    Text(
-                                        text = "TIMETABLE",
-                                        color = if (isTable) Color.White else Color(0xFF8E95A5),
-                                        fontSize = 8.5.sp,
-                                        fontWeight = FontWeight.Black,
-                                        fontFamily = FontFamily.Monospace
-                                    )
-                                }
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .background(if (!isTable) F1Red else Color.Transparent)
-                                    .clickable { onMobileViewTabChange(ArchiveSubView.CIRCUIT_VIEW) }
-                                    .padding(horizontal = 7.dp, vertical = 3.dp)
-                            ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(3.dp)
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Speed,
-                                        contentDescription = null,
-                                        tint = if (!isTable) Color.White else Color(0xFF8E95A5),
-                                        modifier = Modifier.size(10.dp)
-                                    )
-                                    Text(
-                                        text = "CIRCUIT",
-                                        color = if (!isTable) Color.White else Color(0xFF8E95A5),
-                                        fontSize = 8.5.sp,
-                                        fontWeight = FontWeight.Black,
-                                        fontFamily = FontFamily.Monospace
-                                    )
-                                }
+                                Icon(
+                                    imageVector = Icons.Default.Leaderboard,
+                                    contentDescription = null,
+                                    tint = if (isTable) Color.White else Color(0xFF8E95A5),
+                                    modifier = Modifier.size(10.dp)
+                                )
+                                Text(
+                                    text = "TIMING",
+                                    color = if (isTable) Color.White else Color(0xFF8E95A5),
+                                    fontSize = 8.5.sp,
+                                    fontWeight = FontWeight.Black,
+                                    fontFamily = FontFamily.Monospace
+                                )
                             }
                         }
-
-                        if (mode == TelemetryMode.ARCHIVE) {
-                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                Box(modifier = Modifier.clip(RoundedCornerShape(12.dp)).background(Color(0x18FFFFFF)).clickable { onStepLaps(-1) }.padding(horizontal = 6.dp, vertical = 3.dp)) {
-                                    Text("-1L", color = Color(0xFFD0D5DD), fontSize = 9.sp, fontWeight = FontWeight.Bold)
-                                }
-                                Box(modifier = Modifier.size(24.dp).clip(CircleShape).background(if (isPlaying) F1Red else Color(0x35FFFFFF)).clickable { onPlayPauseToggle() }, contentAlignment = Alignment.Center) {
-                                    Icon(if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow, null, tint = Color.White, modifier = Modifier.size(12.dp))
-                                }
-                                Box(modifier = Modifier.clip(RoundedCornerShape(12.dp)).background(Color(0x18FFFFFF)).clickable { onStepLaps(1) }.padding(horizontal = 6.dp, vertical = 3.dp)) {
-                                    Text("+1L", color = Color(0xFFD0D5DD), fontSize = 9.sp, fontWeight = FontWeight.Bold)
-                                }
-                                Box(modifier = Modifier.clip(RoundedCornerShape(12.dp)).background(Color(0x18FFFFFF)).clickable { onSpeedCycle() }.padding(horizontal = 6.dp, vertical = 3.dp)) {
-                                    Text("${replaySpeed}X", color = Color(0xFFFFC700), fontSize = 9.sp, fontWeight = FontWeight.Bold)
-                                }
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(if (!isTable) F1Red else Color.Transparent)
+                                .clickable { onMobileViewTabChange(ArchiveSubView.CIRCUIT_VIEW) }
+                                .padding(horizontal = 7.dp, vertical = 3.dp)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(3.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Speed,
+                                    contentDescription = null,
+                                    tint = if (!isTable) Color.White else Color(0xFF8E95A5),
+                                    modifier = Modifier.size(10.dp)
+                                )
+                                Text(
+                                    text = "CIRCUIT",
+                                    color = if (!isTable) Color.White else Color(0xFF8E95A5),
+                                    fontSize = 8.5.sp,
+                                    fontWeight = FontWeight.Black,
+                                    fontFamily = FontFamily.Monospace
+                                )
                             }
-                        } else {
+                        }
+                    }
+
+                    if (mode == TelemetryMode.ARCHIVE) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Box(modifier = Modifier.clip(RoundedCornerShape(12.dp)).background(Color(0x18FFFFFF)).clickable { onStepLaps(-1) }.padding(horizontal = 6.dp, vertical = 3.dp)) {
+                                Text("-1L", color = Color(0xFFD0D5DD), fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                            }
+                            Box(modifier = Modifier.size(24.dp).clip(CircleShape).background(if (isPlaying) F1Red else Color(0x35FFFFFF)).clickable { onPlayPauseToggle() }, contentAlignment = Alignment.Center) {
+                                Icon(if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow, null, tint = Color.White, modifier = Modifier.size(12.dp))
+                            }
+                            Box(modifier = Modifier.clip(RoundedCornerShape(12.dp)).background(Color(0x18FFFFFF)).clickable { onStepLaps(1) }.padding(horizontal = 6.dp, vertical = 3.dp)) {
+                                Text("+1L", color = Color(0xFFD0D5DD), fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                            }
+                            Box(modifier = Modifier.clip(RoundedCornerShape(12.dp)).background(Color(0x18FFFFFF)).clickable { onSpeedCycle() }.padding(horizontal = 6.dp, vertical = 3.dp)) {
+                                Text("${replaySpeed}X", color = Color(0xFFFFC700), fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    } else {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -1482,6 +1607,31 @@ private fun DynamicIslandPlayer(
                                     color = if (isLiveActive) TelemetryGreen else F1Red,
                                     fontSize = 8.5.sp,
                                     fontWeight = FontWeight.Black,
+                                    fontFamily = FontFamily.Monospace
+                                )
+                            }
+
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(if (F1LiveTimingService.isConnected()) Color(0x2200E676) else Color(0x18FFFFFF))
+                                    .border(1.dp, if (F1LiveTimingService.isConnected()) Color(0xFF00E676) else Color(0x30FFFFFF), RoundedCornerShape(10.dp))
+                                    .clickable { onOpenF1Login() }
+                                    .padding(horizontal = 7.dp, vertical = 3.dp)
+                            ) {
+                                Icon(
+                                    imageVector = if (F1LiveTimingService.isConnected()) Icons.Default.Check else Icons.Default.Lock,
+                                    contentDescription = null,
+                                    tint = if (F1LiveTimingService.isConnected()) Color(0xFF00E676) else Color(0xFFCAD1E0),
+                                    modifier = Modifier.size(10.dp)
+                                )
+                                Text(
+                                    text = if (F1LiveTimingService.isConnected()) "F1 LINKED" else "F1 LOGIN",
+                                    color = if (F1LiveTimingService.isConnected()) Color(0xFF00E676) else Color(0xFFCAD1E0),
+                                    fontSize = 8.5.sp,
+                                    fontWeight = FontWeight.Bold,
                                     fontFamily = FontFamily.Monospace
                                 )
                             }
@@ -4425,106 +4575,156 @@ private fun TelemetryGaugePill(
 }
 
 
-// 5. ARCHIVE RACE SELECTOR DIALOG
+// 5. ARCHIVE RACE SELECTOR BOTTOMSHEET
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ArchiveRaceSelectorDialog(
+private fun ArchiveRaceSelectorBottomSheet(
     races: List<ArchiveRaceOption>,
     selectedRace: ArchiveRaceOption,
     onSelectRace: (ArchiveRaceOption) -> Unit,
     onDismiss: () -> Unit
 ) {
-    BasicAlertDialog(
-        onDismissRequest = onDismiss
+    var sortDescending by remember { mutableStateOf(true) }
+    val sortedRaces = remember(races, sortDescending) {
+        if (sortDescending) races.sortedByDescending { it.round }
+        else races.sortedBy { it.round }
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = ObsidianSurfaceElevated,
+        dragHandle = {
+            BottomSheetDefaults.DragHandle(
+                color = Color(0x60FFFFFF)
+            )
+        }
     ) {
-        Surface(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            shape = RoundedCornerShape(16.dp),
-            color = ObsidianSurfaceElevated,
-            border = BorderStroke(1.dp, GlassBorderActive)
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 36.dp)
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
-                        Text(
-                            text = "SELECT 2026 ARCHIVE RACE",
-                            color = MonoWhite,
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Black,
-                            fontFamily = FontFamily.Monospace
-                        )
-                        Text(
-                            text = "OFFICIAL 2026 GRAND PRIX SESSIONS",
-                            color = MonoMuted,
-                            fontSize = 9.sp,
-                            fontFamily = FontFamily.Monospace
-                        )
-                    }
-
-                    IconButton(onClick = onDismiss, modifier = Modifier.size(28.dp)) {
-                        Icon(Icons.Default.Close, contentDescription = "Close", tint = MonoSilver)
-                    }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = "SELECT 2026 GRAND PRIX",
+                        color = MonoWhite,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Black,
+                        fontFamily = FontFamily.Monospace
+                    )
+                    Text(
+                        text = "2026 CHAMPIONSHIP ROUNDS",
+                        color = MonoMuted,
+                        fontSize = 9.5.sp,
+                        fontFamily = FontFamily.Monospace
+                    )
                 }
 
-                Spacer(Modifier.height(12.dp))
-
-                LazyColumn(
+                Row(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(340.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0x25FFFFFF))
+                        .border(1.dp, Color(0x35FFFFFF), RoundedCornerShape(12.dp))
+                        .clickable { sortDescending = !sortDescending }
+                        .padding(horizontal = 10.dp, vertical = 6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(5.dp)
                 ) {
-                    items(races, key = { it.sessionKey }) { race ->
-                        val isCurrent = race.sessionKey == selectedRace.sessionKey
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(if (isCurrent) Color(0x28E10600) else PitchBlack)
-                                .border(BorderStroke(0.5.dp, if (isCurrent) F1Red else Color(0x14FFFFFF)), RoundedCornerShape(8.dp))
+                    Icon(
+                        imageVector = Icons.Default.SwapVert,
+                        contentDescription = "Sort Rounds",
+                        tint = Color(0xFF00E5FF),
+                        modifier = Modifier.size(15.dp)
+                    )
+                    Text(
+                        text = if (sortDescending) "RD 14 → 1" else "RD 1 → 14",
+                        color = MonoWhite,
+                        fontSize = 9.5.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = FontFamily.Monospace
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(14.dp))
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 440.dp)
+            ) {
+                items(sortedRaces, key = { it.sessionKey }) { race ->
+                    val isCurrent = race.sessionKey == selectedRace.sessionKey
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(if (isCurrent) Color(0x28E10600) else PitchBlack)
+                            .border(BorderStroke(if (isCurrent) 1.dp else 0.5.dp, if (isCurrent) F1Red else Color(0x14FFFFFF)), RoundedCornerShape(10.dp))
                             .clickable { onSelectRace(race) }
-                            .padding(horizontal = 12.dp, vertical = 10.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                FormulaTrackrImage(
-                                    url = getCountryFlagUrl(race.country),
-                                    contentDescription = race.country,
-                                    modifier = Modifier
-                                        .height(16.dp)
-                                        .width(24.dp)
-                                        .clip(RoundedCornerShape(3.dp))
-                                )
-                                Spacer(Modifier.width(10.dp))
-                                Column {
+                            .padding(horizontal = 14.dp, vertical = 12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f, fill = false)) {
+                            FormulaTrackrImage(
+                                url = getCountryFlagUrl(race.country),
+                                contentDescription = race.country,
+                                modifier = Modifier
+                                    .height(18.dp)
+                                    .width(26.dp)
+                                    .clip(RoundedCornerShape(3.dp))
+                            )
+                            Spacer(Modifier.width(12.dp))
+                            Column {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                ) {
+                                    Surface(
+                                        shape = RoundedCornerShape(4.dp),
+                                        color = if (isCurrent) F1Red else Color(0x25FFFFFF)
+                                    ) {
+                                        Text(
+                                            text = "RD ${race.round}",
+                                            modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp),
+                                            fontSize = 8.5.sp,
+                                            fontWeight = FontWeight.Black,
+                                            fontFamily = FontFamily.Monospace,
+                                            color = MonoWhite
+                                        )
+                                    }
                                     Text(
-                                        text = "ROUND ${race.round} • ${race.name.uppercase()}",
+                                        text = race.name.uppercase(),
                                         color = if (isCurrent) MonoWhite else MonoSilver,
-                                        fontSize = 11.sp,
+                                        fontSize = 11.5.sp,
                                         fontWeight = FontWeight.Bold,
-                                        fontFamily = FontFamily.Monospace
-                                    )
-                                    Text(
-                                        text = "${race.circuitShortName} (${race.country}) • ${race.totalLaps} Laps",
-                                        color = MonoMuted,
-                                        fontSize = 9.sp,
-                                        fontFamily = FontFamily.Monospace
+                                        fontFamily = FontFamily.Monospace,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
                                     )
                                 }
-                            }
-
-                            if (isCurrent) {
-                                Icon(Icons.Default.Check, contentDescription = "Selected", tint = F1Red, modifier = Modifier.size(18.dp))
+                                Spacer(Modifier.height(2.dp))
+                                Text(
+                                    text = "${race.circuitShortName} • ${race.country} • ${race.totalLaps} Laps • ${race.trackLengthKm}",
+                                    color = MonoMuted,
+                                    fontSize = 9.sp,
+                                    fontFamily = FontFamily.Monospace
+                                )
                             }
                         }
-                        Spacer(Modifier.height(6.dp))
+
+                        if (isCurrent) {
+                            Icon(Icons.Default.Check, contentDescription = "Selected", tint = F1Red, modifier = Modifier.size(18.dp))
+                        }
                     }
+                    Spacer(Modifier.height(8.dp))
                 }
             }
         }
@@ -4572,7 +4772,7 @@ private fun NextRoundTimetableView(
                 }
                 Spacer(Modifier.height(10.dp))
                 Text(
-                    text = "NO OFFICIAL F1 LIVE TIMING ACTIVE",
+                    text = "NO LIVE TIMING SESSION ACTIVE",
                     color = MonoWhite,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Black,
@@ -4580,7 +4780,7 @@ private fun NextRoundTimetableView(
                     textAlign = TextAlign.Center
                 )
                 Text(
-                    text = "Official live timing feed is idle between grand prix sessions.",
+                    text = "Live telemetry feed is idle between grand prix sessions.",
                     color = MonoMuted,
                     fontSize = 10.sp,
                     fontFamily = FontFamily.Monospace,

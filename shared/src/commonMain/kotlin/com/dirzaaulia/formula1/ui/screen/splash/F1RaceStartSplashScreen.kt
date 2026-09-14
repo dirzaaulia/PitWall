@@ -131,7 +131,7 @@ fun F1RaceStartSplashScreen(
                     border = BorderStroke(1.dp, F1Red.copy(alpha = 0.6f))
                 ) {
                     Text(
-                        text = "PITWALL • OFFICIAL TIMING PROTOCOL",
+                        text = "PITWALL • LIVE TELEMETRY PROTOCOL",
                         modifier = Modifier.padding(horizontal = 14.dp, vertical = 5.dp),
                         fontSize = if (isCompact) 9.5.sp else 11.sp,
                         fontWeight = FontWeight.Black,
@@ -171,7 +171,7 @@ fun F1RaceStartSplashScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)
                         ) {
-                            Text("FIA START SYSTEM", fontSize = if (isCompact) 8.sp else 9.sp, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, color = TextMuted)
+                            Text("START LIGHT GANTRY", fontSize = if (isCompact) 8.sp else 9.sp, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, color = TextMuted)
                             Text("5-LIGHT OPTICAL MATRIX", fontSize = if (isCompact) 8.sp else 9.sp, fontFamily = FontFamily.Monospace, fontWeight = FontWeight.Bold, color = TextMuted)
                         }
 

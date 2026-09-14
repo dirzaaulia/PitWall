@@ -94,7 +94,7 @@ import com.dirzaaulia.formula1.util.format2Digits
 import com.dirzaaulia.formula1.util.getCircuitMapUrl
 import com.dirzaaulia.formula1.util.getCircuitSpecs
 import com.dirzaaulia.formula1.util.getCountryFlagUrl
-import com.dirzaaulia.formula1.util.getCurrentDateIso
+import com.dirzaaulia.formula1.util.isRaceFinished
 import io.ktor.util.date.GMTDate
 import kotlinx.coroutines.delay
 
@@ -123,9 +123,8 @@ fun RaceDetailScreen(
     val windowSizeClass = LocalWindowSizeClass.current
     val isWidescreen = windowSizeClass.isWidescreen
 
-    val today = remember { getCurrentDateIso() }
-    val isFinished = remember(race.date, today) {
-        race.date.isNotBlank() && race.date < today
+    val isFinished = remember(race) {
+        isRaceFinished(race)
     }
 
     var weekendResults by remember(race.round) { mutableStateOf<GrandPrixWeekendResults?>(null) }
@@ -365,7 +364,7 @@ private fun RaceHeroAtmosphericCard(
                             border = BorderStroke(1.dp, if (isFinished) Color(0x44FFFFFF) else F1Red)
                         ) {
                             Text(
-                                text = if (isFinished) "/ OFFICIAL RESULT /" else "/ UPCOMING GRAND PRIX /",
+                                text = if (isFinished) "/ FINAL RESULT /" else "/ UPCOMING GRAND PRIX /",
                                 modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Black,

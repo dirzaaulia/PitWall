@@ -16,7 +16,7 @@ import com.dirzaaulia.formula1.model.Race
 import com.dirzaaulia.formula1.network.NetworkRepository
 import com.dirzaaulia.formula1.ui.component.ShimmerCard
 import com.dirzaaulia.formula1.util.LocalWindowSizeClass
-import com.dirzaaulia.formula1.util.getCurrentDateIso
+import com.dirzaaulia.formula1.util.findNextUpcomingRace
 
 @Composable
 fun HomeScreen(
@@ -45,9 +45,8 @@ fun HomeScreen(
         isLoading = false
     }
 
-    val today = getCurrentDateIso()
     // Next race is strictly from schedule — independent of selected driver
-    val nextRace = races.firstOrNull { it.date >= today } ?: races.lastOrNull() ?: Race()
+    val nextRace = findNextUpcomingRace(races) ?: Race()
     val topDriverStandings = driverStandings.take(3)
     val topConstructors = constructorStandings.take(3)
 

@@ -38,6 +38,8 @@ kotlin-js-store/
 .firebase/
 .agents/
 scratch/
+node_modules/
+functions/node_modules/
 
 # Python
 __pycache__/
@@ -58,3 +60,5 @@ temp_runtime_classes/
 *.png
 !docs/*.png
 !app/src/main/ic_launcher-playstore.png
+!screenshots/store_listing/*.png
+!screenshots/raw/*.png

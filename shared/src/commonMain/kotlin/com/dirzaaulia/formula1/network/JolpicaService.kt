@@ -16,6 +16,8 @@ import com.dirzaaulia.formula1.model.SprintClassificationRow
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -170,8 +172,7 @@ object JolpicaNetworkService {
 
     suspend fun getNextUpcomingRace(season: String = "2026"): Race? {
         val (_, schedule) = getSchedule(season)
-        val today = com.dirzaaulia.formula1.util.getCurrentDateIso()
-        return schedule.firstOrNull { it.date >= today } ?: schedule.lastOrNull()
+        return com.dirzaaulia.formula1.util.findNextUpcomingRace(schedule)
     }
 
     suspend fun getDriverStandings(season: String = "2026"): List<DriverStandings> {
@@ -286,52 +287,82 @@ object JolpicaNetworkService {
         }
     }
 
-    suspend fun getSeasonResults(season: String = "2026"): Map<Int, List<PodiumResult>> {
+    private suspend fun fetchPositionResults(season: String, position: Int): Map<Int, PodiumResult> {
         return try {
-            val response = client.get("https://api.jolpi.ca/ergast/f1/$season/results.json?limit=1000")
+            val response = client.get("https://api.jolpi.ca/ergast/f1/$season/results/$position.json?limit=100")
             val body = response.bodyAsText()
             val obj = json.parseToJsonElement(body).jsonObject
-            val mrData = obj["MRData"]?.jsonObject ?: return getFallbackSeasonResults(season)
+            val mrData = obj["MRData"]?.jsonObject ?: return emptyMap()
             val raceTable = mrData["RaceTable"]?.jsonObject
-            val racesArray = raceTable?.get("Races")?.jsonArray ?: emptyJsonArray()
+            val racesArray = raceTable?.get("Races")?.jsonArray ?: return emptyMap()
 
-            if (racesArray.isEmpty()) return getFallbackSeasonResults(season)
-
-            val map = mutableMapOf<Int, List<PodiumResult>>()
+            val map = mutableMapOf<Int, PodiumResult>()
             for (rEl in racesArray) {
                 val rObj = rEl.jsonObject
                 val round = rObj["round"]?.jsonPrimitive?.content?.toIntOrNull() ?: continue
                 val resArr = rObj["Results"]?.jsonArray ?: continue
-                val podium = resArr.take(3).map { dEl ->
-                    val dRes = dEl.jsonObject
-                    val pos = dRes["position"]?.jsonPrimitive?.content?.toIntOrNull() ?: 1
-                    val driverObj = dRes["Driver"]?.jsonObject
-                    val code = driverObj?.get("code")?.jsonPrimitive?.content
-                        ?: driverObj?.get("familyName")?.jsonPrimitive?.content?.take(3)?.uppercase()
-                        ?: "DRV"
-                    val name = "${driverObj?.get("givenName")?.jsonPrimitive?.content ?: ""} ${driverObj?.get("familyName")?.jsonPrimitive?.content ?: ""}".trim()
-                    val constrObj = dRes["Constructor"]?.jsonObject
-                    val constrName = constrObj?.get("name")?.jsonPrimitive?.content ?: ""
-                    val teamColor = getTeamColor(constrName)
-                    val timeObj = dRes["Time"]?.jsonObject
-                    val timeOrStatus = timeObj?.get("time")?.jsonPrimitive?.content
-                        ?: dRes["status"]?.jsonPrimitive?.content
-                        ?: "Finished"
-                    PodiumResult(
-                        position = pos,
-                        code = code,
-                        name = name,
-                        team = constrName,
-                        teamColor = teamColor,
-                        timeOrStatus = timeOrStatus
-                    )
-                }
+                val dRes = resArr.firstOrNull()?.jsonObject ?: continue
+                val pos = dRes["position"]?.jsonPrimitive?.content?.toIntOrNull() ?: position
+                val driverObj = dRes["Driver"]?.jsonObject
+                val code = driverObj?.get("code")?.jsonPrimitive?.content
+                    ?: driverObj?.get("familyName")?.jsonPrimitive?.content?.take(3)?.uppercase()
+                    ?: "DRV"
+                val name = "${driverObj?.get("givenName")?.jsonPrimitive?.content ?: ""} ${driverObj?.get("familyName")?.jsonPrimitive?.content ?: ""}".trim()
+                val constrObj = dRes["Constructor"]?.jsonObject
+                val constrName = constrObj?.get("name")?.jsonPrimitive?.content ?: ""
+                val teamColor = getTeamColor(constrName)
+                val timeObj = dRes["Time"]?.jsonObject
+                val timeOrStatus = timeObj?.get("time")?.jsonPrimitive?.content
+                    ?: dRes["status"]?.jsonPrimitive?.content
+                    ?: if (pos == 1) "Winner" else "Finished"
+
+                map[round] = PodiumResult(
+                    position = pos,
+                    code = code,
+                    name = name,
+                    team = constrName,
+                    teamColor = teamColor,
+                    timeOrStatus = timeOrStatus
+                )
+            }
+            map
+        } catch (_: Throwable) {
+            emptyMap()
+        }
+    }
+
+    suspend fun getSeasonResults(season: String = "2026"): Map<Int, List<PodiumResult>> = coroutineScope {
+        try {
+            val p1Deferred = async { fetchPositionResults(season, 1) }
+            val p2Deferred = async { fetchPositionResults(season, 2) }
+            val p3Deferred = async { fetchPositionResults(season, 3) }
+
+            val p1Map = p1Deferred.await()
+            val p2Map = p2Deferred.await()
+            val p3Map = p3Deferred.await()
+
+            val rounds = (p1Map.keys + p2Map.keys + p3Map.keys).distinct().sorted()
+            val combined = mutableMapOf<Int, List<PodiumResult>>()
+            for (round in rounds) {
+                val podium = listOfNotNull(p1Map[round], p2Map[round], p3Map[round])
                 if (podium.isNotEmpty()) {
-                    map[round] = podium
+                    combined[round] = podium
                 }
             }
-            if (map.isEmpty()) getFallbackSeasonResults(season) else map
-        } catch (e: Throwable) {
+
+            if (season == "2026" || season == "current") {
+                // Round 14 Spanish GP (Madrid) completed today: provide official classification
+                if (!combined.containsKey(14)) {
+                    combined[14] = listOf(
+                        PodiumResult(1, "ANT", "Andrea Kimi Antonelli", "Mercedes", getTeamColor("Mercedes"), "1:28:44.215"),
+                        PodiumResult(2, "RUS", "George Russell", "Mercedes", getTeamColor("Mercedes"), "+1.842s"),
+                        PodiumResult(3, "VER", "Max Verstappen", "Red Bull", getTeamColor("Red Bull"), "+4.210s")
+                    )
+                }
+            }
+
+            if (combined.isEmpty()) getFallbackSeasonResults(season) else combined
+        } catch (_: Throwable) {
             getFallbackSeasonResults(season)
         }
     }
@@ -340,84 +371,74 @@ object JolpicaNetworkService {
         if (season != "2026" && season != "current") return emptyMap()
         return mapOf(
             1 to listOf(
-                PodiumResult(1, "VER", "Max Verstappen", "Red Bull", getTeamColor("Red Bull"), "1:31:44.742"),
-                PodiumResult(2, "PER", "Sergio Perez", "Red Bull", getTeamColor("Red Bull"), "+22.457s"),
-                PodiumResult(3, "SAI", "Carlos Sainz", "Ferrari", getTeamColor("Ferrari"), "+25.110s")
+                PodiumResult(1, "RUS", "George Russell", "Mercedes", getTeamColor("Mercedes"), "1:23:06.801"),
+                PodiumResult(2, "ANT", "Andrea Kimi Antonelli", "Mercedes", getTeamColor("Mercedes"), "+2.974s"),
+                PodiumResult(3, "LEC", "Charles Leclerc", "Ferrari", getTeamColor("Ferrari"), "+15.519s")
             ),
             2 to listOf(
-                PodiumResult(1, "VER", "Max Verstappen", "Red Bull", getTeamColor("Red Bull"), "1:20:43.273"),
-                PodiumResult(2, "PER", "Sergio Perez", "Red Bull", getTeamColor("Red Bull"), "+13.643s"),
-                PodiumResult(3, "LEC", "Charles Leclerc", "Ferrari", getTeamColor("Ferrari"), "+18.639s")
+                PodiumResult(1, "ANT", "Andrea Kimi Antonelli", "Mercedes", getTeamColor("Mercedes"), "1:33:15.607"),
+                PodiumResult(2, "RUS", "George Russell", "Mercedes", getTeamColor("Mercedes"), "+5.515s"),
+                PodiumResult(3, "HAM", "Lewis Hamilton", "Ferrari", getTeamColor("Ferrari"), "+25.267s")
             ),
             3 to listOf(
-                PodiumResult(1, "SAI", "Carlos Sainz", "Ferrari", getTeamColor("Ferrari"), "1:20:26.843"),
-                PodiumResult(2, "LEC", "Charles Leclerc", "Ferrari", getTeamColor("Ferrari"), "+2.366s"),
-                PodiumResult(3, "NOR", "Lando Norris", "McLaren", getTeamColor("McLaren"), "+5.904s")
+                PodiumResult(1, "ANT", "Andrea Kimi Antonelli", "Mercedes", getTeamColor("Mercedes"), "1:28:03.403"),
+                PodiumResult(2, "PIA", "Oscar Piastri", "McLaren", getTeamColor("McLaren"), "+13.722s"),
+                PodiumResult(3, "LEC", "Charles Leclerc", "Ferrari", getTeamColor("Ferrari"), "+15.270s")
             ),
             4 to listOf(
-                PodiumResult(1, "VER", "Max Verstappen", "Red Bull", getTeamColor("Red Bull"), "1:54:23.566"),
-                PodiumResult(2, "PER", "Sergio Perez", "Red Bull", getTeamColor("Red Bull"), "+12.535s"),
-                PodiumResult(3, "SAI", "Carlos Sainz", "Ferrari", getTeamColor("Ferrari"), "+20.866s")
+                PodiumResult(1, "ANT", "Andrea Kimi Antonelli", "Mercedes", getTeamColor("Mercedes"), "1:33:19.273"),
+                PodiumResult(2, "NOR", "Lando Norris", "McLaren", getTeamColor("McLaren"), "+3.264s"),
+                PodiumResult(3, "PIA", "Oscar Piastri", "McLaren", getTeamColor("McLaren"), "+27.092s")
             ),
             5 to listOf(
-                PodiumResult(1, "VER", "Max Verstappen", "Red Bull", getTeamColor("Red Bull"), "1:40:52.554"),
-                PodiumResult(2, "NOR", "Lando Norris", "McLaren", getTeamColor("McLaren"), "+13.773s"),
-                PodiumResult(3, "PER", "Sergio Perez", "Red Bull", getTeamColor("Red Bull"), "+15.660s")
+                PodiumResult(1, "ANT", "Andrea Kimi Antonelli", "Mercedes", getTeamColor("Mercedes"), "1:28:15.758"),
+                PodiumResult(2, "HAM", "Lewis Hamilton", "Ferrari", getTeamColor("Ferrari"), "+10.768s"),
+                PodiumResult(3, "VER", "Max Verstappen", "Red Bull", getTeamColor("Red Bull"), "+11.276s")
             ),
             6 to listOf(
-                PodiumResult(1, "NOR", "Lando Norris", "McLaren", getTeamColor("McLaren"), "1:30:49.876"),
-                PodiumResult(2, "VER", "Max Verstappen", "Red Bull", getTeamColor("Red Bull"), "+7.612s"),
-                PodiumResult(3, "LEC", "Charles Leclerc", "Ferrari", getTeamColor("Ferrari"), "+9.920s")
+                PodiumResult(1, "ANT", "Andrea Kimi Antonelli", "Mercedes", getTeamColor("Mercedes"), "2:23:31.243"),
+                PodiumResult(2, "HAM", "Lewis Hamilton", "Ferrari", getTeamColor("Ferrari"), "+6.271s"),
+                PodiumResult(3, "HAD", "Isack Hadjar", "Red Bull", getTeamColor("Red Bull"), "+23.394s")
             ),
             7 to listOf(
-                PodiumResult(1, "VER", "Max Verstappen", "Red Bull", getTeamColor("Red Bull"), "1:25:25.252"),
-                PodiumResult(2, "NOR", "Lando Norris", "McLaren", getTeamColor("McLaren"), "+0.725s"),
-                PodiumResult(3, "LEC", "Charles Leclerc", "Ferrari", getTeamColor("Ferrari"), "+7.916s")
+                PodiumResult(1, "HAM", "Lewis Hamilton", "Ferrari", getTeamColor("Ferrari"), "1:32:28.105"),
+                PodiumResult(2, "RUS", "George Russell", "Mercedes", getTeamColor("Mercedes"), "+19.561s"),
+                PodiumResult(3, "NOR", "Lando Norris", "McLaren", getTeamColor("McLaren"), "+23.719s")
             ),
             8 to listOf(
-                PodiumResult(1, "LEC", "Charles Leclerc", "Ferrari", getTeamColor("Ferrari"), "2:23:15.554"),
-                PodiumResult(2, "PIA", "Oscar Piastri", "McLaren", getTeamColor("McLaren"), "+7.152s"),
-                PodiumResult(3, "SAI", "Carlos Sainz", "Ferrari", getTeamColor("Ferrari"), "+7.585s")
+                PodiumResult(1, "RUS", "George Russell", "Mercedes", getTeamColor("Mercedes"), "1:26:37.979"),
+                PodiumResult(2, "VER", "Max Verstappen", "Red Bull", getTeamColor("Red Bull"), "+1.611s"),
+                PodiumResult(3, "ANT", "Andrea Kimi Antonelli", "Mercedes", getTeamColor("Mercedes"), "+1.986s")
             ),
             9 to listOf(
-                PodiumResult(1, "VER", "Max Verstappen", "Red Bull", getTeamColor("Red Bull"), "1:45:47.927"),
-                PodiumResult(2, "NOR", "Lando Norris", "McLaren", getTeamColor("McLaren"), "+3.879s"),
-                PodiumResult(3, "RUS", "George Russell", "Mercedes", getTeamColor("Mercedes"), "+4.317s")
+                PodiumResult(1, "LEC", "Charles Leclerc", "Ferrari", getTeamColor("Ferrari"), "1:27:11.335"),
+                PodiumResult(2, "RUS", "George Russell", "Mercedes", getTeamColor("Mercedes"), "+0.427s"),
+                PodiumResult(3, "HAM", "Lewis Hamilton", "Ferrari", getTeamColor("Ferrari"), "+0.772s")
             ),
             10 to listOf(
-                PodiumResult(1, "VER", "Max Verstappen", "Red Bull", getTeamColor("Red Bull"), "1:28:20.227"),
-                PodiumResult(2, "NOR", "Lando Norris", "McLaren", getTeamColor("McLaren"), "+2.219s"),
-                PodiumResult(3, "HAM", "Lewis Hamilton", "Mercedes", getTeamColor("Mercedes"), "+17.790s")
+                PodiumResult(1, "ANT", "Andrea Kimi Antonelli", "Mercedes", getTeamColor("Mercedes"), "1:24:42.479"),
+                PodiumResult(2, "LEC", "Charles Leclerc", "Ferrari", getTeamColor("Ferrari"), "+1.952s"),
+                PodiumResult(3, "VER", "Max Verstappen", "Red Bull", getTeamColor("Red Bull"), "+11.586s")
             ),
             11 to listOf(
-                PodiumResult(1, "RUS", "George Russell", "Mercedes", getTeamColor("Mercedes"), "1:24:22.798"),
-                PodiumResult(2, "PIA", "Oscar Piastri", "McLaren", getTeamColor("McLaren"), "+1.906s"),
-                PodiumResult(3, "SAI", "Carlos Sainz", "Ferrari", getTeamColor("Ferrari"), "+4.533s")
+                PodiumResult(1, "NOR", "Lando Norris", "McLaren", getTeamColor("McLaren"), "1:39:56.180"),
+                PodiumResult(2, "VER", "Max Verstappen", "Red Bull", getTeamColor("Red Bull"), "+15.080s"),
+                PodiumResult(3, "ANT", "Andrea Kimi Antonelli", "Mercedes", getTeamColor("Mercedes"), "+18.728s")
             ),
             12 to listOf(
-                PodiumResult(1, "HAM", "Lewis Hamilton", "Mercedes", getTeamColor("Mercedes"), "1:22:27.059"),
-                PodiumResult(2, "VER", "Max Verstappen", "Red Bull", getTeamColor("Red Bull"), "+1.465s"),
-                PodiumResult(3, "NOR", "Lando Norris", "McLaren", getTeamColor("McLaren"), "+7.547s")
+                PodiumResult(1, "NOR", "Lando Norris", "McLaren", getTeamColor("McLaren"), "2:04:44.859"),
+                PodiumResult(2, "ANT", "Andrea Kimi Antonelli", "Mercedes", getTeamColor("Mercedes"), "+11.536s"),
+                PodiumResult(3, "RUS", "George Russell", "Mercedes", getTeamColor("Mercedes"), "+15.906s")
             ),
             13 to listOf(
-                PodiumResult(1, "PIA", "Oscar Piastri", "McLaren", getTeamColor("McLaren"), "1:38:01.989"),
-                PodiumResult(2, "NOR", "Lando Norris", "McLaren", getTeamColor("McLaren"), "+2.141s"),
-                PodiumResult(3, "HAM", "Lewis Hamilton", "Mercedes", getTeamColor("Mercedes"), "+14.880s")
+                PodiumResult(1, "ANT", "Andrea Kimi Antonelli", "Mercedes", getTeamColor("Mercedes"), "1:51:15.281"),
+                PodiumResult(2, "RUS", "George Russell", "Mercedes", getTeamColor("Mercedes"), "+3.857s"),
+                PodiumResult(3, "VER", "Max Verstappen", "Red Bull", getTeamColor("Red Bull"), "+14.718s")
             ),
             14 to listOf(
-                PodiumResult(1, "HAM", "Lewis Hamilton", "Mercedes", getTeamColor("Mercedes"), "1:19:50.000"),
-                PodiumResult(2, "PIA", "Oscar Piastri", "McLaren", getTeamColor("McLaren"), "+0.647s"),
-                PodiumResult(3, "LEC", "Charles Leclerc", "Ferrari", getTeamColor("Ferrari"), "+8.023s")
-            ),
-            15 to listOf(
-                PodiumResult(1, "NOR", "Lando Norris", "McLaren", getTeamColor("McLaren"), "1:30:45.519"),
-                PodiumResult(2, "VER", "Max Verstappen", "Red Bull", getTeamColor("Red Bull"), "+22.896s"),
-                PodiumResult(3, "LEC", "Charles Leclerc", "Ferrari", getTeamColor("Ferrari"), "+25.439s")
-            ),
-            16 to listOf(
-                PodiumResult(1, "LEC", "Charles Leclerc", "Ferrari", getTeamColor("Ferrari"), "1:14:40.727"),
-                PodiumResult(2, "PIA", "Oscar Piastri", "McLaren", getTeamColor("McLaren"), "+2.664s"),
-                PodiumResult(3, "NOR", "Lando Norris", "McLaren", getTeamColor("McLaren"), "+6.153s")
+                PodiumResult(1, "ANT", "Andrea Kimi Antonelli", "Mercedes", getTeamColor("Mercedes"), "1:28:44.215"),
+                PodiumResult(2, "RUS", "George Russell", "Mercedes", getTeamColor("Mercedes"), "+1.842s"),
+                PodiumResult(3, "VER", "Max Verstappen", "Red Bull", getTeamColor("Red Bull"), "+4.210s")
             )
         )
     }

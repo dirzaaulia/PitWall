@@ -173,7 +173,7 @@ def main():
             "out": "screenshots/store_listing/04_specs_banner.png",
             "badge": "CIRCUIT SPECS",
             "title": "Circuit Intelligence",
-            "sub": "Track layouts, DRS zones & official lap records",
+            "sub": "Track layouts, DRS zones & circuit lap records",
             "color": (168, 85, 247) # Purple
         },
         {

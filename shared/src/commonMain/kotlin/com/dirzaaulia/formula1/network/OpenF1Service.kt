@@ -55,7 +55,8 @@ object OpenF1Service {
     suspend fun checkF1OfficialLiveStatus(): Pair<Boolean, String> {
         return withTimeoutOrNull(3000L) {
             try {
-                val response = client.get("https://livetiming.formula1.com/static/SessionInfo.json")
+                val baseUrl = com.dirzaaulia.formula1.util.getF1LiveTimingBaseUrl()
+                val response = client.get("$baseUrl/static/SessionInfo.json")
                 if (response.status.value !in 200..299) return@withTimeoutOrNull Pair(false, "Spanish Grand Prix - Practice 3")
                 val body = response.bodyAsText()
                 val clean = body.trimStart { it != '{' }

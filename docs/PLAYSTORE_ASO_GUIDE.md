@@ -135,5 +135,5 @@ F1, FORMULA ONE, FORMULA 1, FIA FORMULA ONE WORLD CHAMPIONSHIP, GRAND PRIX, and 
 1. **Screenshot 1**: *Live Pit Wall Telemetry* - "Real-Time Sector Deltas, Speed Traps & Tyre Age".
 2. **Screenshot 2**: *Race Calendar & Local Timezones* - "Never Miss a Session with Auto-Converted Local Times".
 3. **Screenshot 3**: *Interactive Circuit Intelligence* - "Detailed Circuit Specs, Turns & Fastest Lap Records".
-4. **Screenshot 4**: *Championship Standings* - "Driver Points, Team Classifications & Official Stats".
+4. **Screenshot 4**: *Championship Standings* - "Driver Points, Team Classifications & Season Stats".
 5. **Screenshot 5**: *Archive Replay* - "Analyze Past Races Lap-by-Lap with Precision Scrubbing".

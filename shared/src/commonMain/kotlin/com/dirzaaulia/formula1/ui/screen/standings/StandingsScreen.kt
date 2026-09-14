@@ -430,7 +430,7 @@ fun StandingsScreen(
                 ) {
                     StandingsSectionHeader(
                         title = "/ DRIVERS WORLD CHAMPIONSHIP /",
-                        subtitle = "OFFICIAL FIA RANKINGS",
+                        subtitle = "CHAMPIONSHIP STANDINGS",
                         accentColor = F1Red
                     )
                     Spacer(Modifier.height(10.dp))
@@ -448,7 +448,7 @@ fun StandingsScreen(
                 ) {
                     StandingsSectionHeader(
                         title = "/ CONSTRUCTORS CHAMPIONSHIP /",
-                        subtitle = "OFFICIAL TEAM RANKINGS",
+                        subtitle = "CONSTRUCTORS STANDINGS",
                         accentColor = Color(0xFF00D7B6)
                     )
                     Spacer(Modifier.height(10.dp))

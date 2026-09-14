@@ -136,7 +136,7 @@ def generate_feature_graphic(output_path: str = "docs/feature_graphic_1024x500.p
     t_draw = ImageDraw.Draw(text_layer)
     
     # Top badge pill next to icon
-    pill_text = "2026 OFFICIAL LIVE SEASON"
+    pill_text = "2026 LIVE CHAMPIONSHIP SEASON"
     p_bbox = pill_font.getbbox(pill_text)
     pw = p_bbox[2] - p_bbox[0] + 36
     ph = p_bbox[3] - p_bbox[1] + 14

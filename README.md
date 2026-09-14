@@ -37,9 +37,29 @@
 * **📅 2026 Race Calendar & Circuit Analytics:**  
   Start times automatically converted to your local timezone. Live weekend countdown timers, track record specifications, and circuit layout schematics.
 * **🏆 World Championship Standings:**  
-  Driver and constructor championship standings with official team liveries and real-time points progression.
+  Driver and constructor championship standings with authentic team liveries and real-time points progression.
 * **🔒 100% Privacy-First:**  
   Zero account required, zero advertising trackers, and zero personal data collection.
+
+---
+
+## 📸 Application Showcase & Play Store Gallery
+
+<div align="center">
+
+| ⏱️ Real-Time Sector Deltas | 🛰️ Circuit GPS Radar & Replay | 📅 2026 Race Calendar |
+| :---: | :---: | :---: |
+| <a href="screenshots/store_listing/01_telemetry_banner.png"><img src="screenshots/store_listing/01_telemetry_banner.png" width="280" alt="Live Pit Wall Telemetry" /></a> | <a href="screenshots/store_listing/02_circuit_banner.png"><img src="screenshots/store_listing/02_circuit_banner.png" width="280" alt="Live Circuit GPS Radar" /></a> | <a href="screenshots/store_listing/03_calendar_banner.png"><img src="screenshots/store_listing/03_calendar_banner.png" width="280" alt="2026 Race Calendar & Times" /></a> |
+| *Live micro-sector splits & intervals* | *Driver track positioning & replay* | *Local timezone converted schedules* |
+
+<br/>
+
+| 🏁 Circuit Intelligence & Specs | 🏆 Championship Standings |
+| :---: | :---: |
+| <a href="screenshots/store_listing/04_specs_banner.png"><img src="screenshots/store_listing/04_specs_banner.png" width="340" alt="Circuit Intelligence Specs" /></a> | <a href="screenshots/store_listing/05_standings_banner.png"><img src="screenshots/store_listing/05_standings_banner.png" width="340" alt="World Championship Standings" /></a> |
+| *Track layouts, DRS zones & records* | *Constructor points & driver rankings* |
+
+</div>
 
 ---
 
@@ -122,6 +142,10 @@ FormulaTrackr/
 │   ├── PLAYSTORE_ASO_GUIDE.md
 │   ├── playstore_icon_512.png
 │   └── feature_graphic_1024x500.png
+│
+├── screenshots/                         # Store marketing banners & raw captures
+│   ├── store_listing/                   # High-res framed store banners (1080x2400)
+│   └── raw/                             # Clean full-fidelity device captures
 │
 ├── scripts/                             # Python deployment & asset tooling
 │   ├── deploy_playstore.py              # Automated Play Console AAB build & deploy

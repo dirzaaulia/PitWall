@@ -86,6 +86,8 @@ import com.dirzaaulia.formula1.util.getCountryFlagUrl
 import com.dirzaaulia.formula1.util.getCurrentDateIso
 import com.dirzaaulia.formula1.util.SessionCountdownScheduler
 import com.dirzaaulia.formula1.util.calculateCountdownRemaining
+import com.dirzaaulia.formula1.util.isRaceFinished
+import com.dirzaaulia.formula1.util.findNextUpcomingRace
 import io.ktor.util.date.GMTDate
 import kotlinx.coroutines.delay
 
@@ -196,14 +198,13 @@ fun CalendarScreen(
                     )
                 }
 
-                val today = remember { getCurrentDateIso() }
                 val isPastSeason = remember(selectedSeason) { selectedSeason < GMTDate().year }
                 val isFutureSeason = remember(selectedSeason) { selectedSeason > GMTDate().year }
 
-                val completedCount = remember(races, isPastSeason, isFutureSeason, today) {
+                val completedCount = remember(races, isPastSeason, isFutureSeason) {
                     if (isPastSeason) races.size
                     else if (isFutureSeason) 0
-                    else races.count { it.date.isNotBlank() && it.date < today }
+                    else races.count { isRaceFinished(it) }
                 }
 
                 if (completedCount > 0) {
@@ -374,19 +375,18 @@ fun CalendarScreen(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
-                val today = getCurrentDateIso()
                 val isPastSeason = selectedSeason < GMTDate().year
                 val isFutureSeason = selectedSeason > GMTDate().year
 
                 val nextUpcomingRace = if (isPastSeason) null
                 else if (isFutureSeason) races.firstOrNull()
-                else races.firstOrNull { it.date.isNotBlank() && it.date >= today } ?: races.lastOrNull()
+                else findNextUpcomingRace(races)
 
                 // Featured Event Banner at top (real upcoming race or earliest round for past seasons)
                 if (races.isNotEmpty()) {
                     val featuredRace = nextUpcomingRace ?: races.first()
                     val featuredPodium = seasonResults[featuredRace.round]
-                    val isFeaturedFinished = isPastSeason || (featuredRace.date.isNotBlank() && featuredRace.date < today)
+                    val isFeaturedFinished = isPastSeason || isRaceFinished(featuredRace)
                     val isFeaturedNextUpcoming = !isPastSeason && (nextUpcomingRace?.round == featuredRace.round)
 
                     item(span = { androidx.compose.foundation.lazy.grid.GridItemSpan(maxLineSpan) }) {
@@ -402,13 +402,13 @@ fun CalendarScreen(
                 }
 
                 itemsIndexed(races) { _, race ->
-                    val isRaceFinished = isPastSeason || (race.date.isNotBlank() && race.date < today)
+                    val isRaceCompleted = isPastSeason || isRaceFinished(race)
                     val isNextUpcoming = !isPastSeason && (nextUpcomingRace?.round == race.round)
                     val podium = seasonResults[race.round]
                     RaceBentoGridCard(
                         race = race,
                         podium = podium,
-                        isFinished = isRaceFinished,
+                        isFinished = isRaceCompleted,
                         isNextUpcoming = isNextUpcoming,
                         isWidescreen = isWidescreen,
                         onClick = { onSelectRace(race) }
@@ -553,7 +553,7 @@ private fun FeaturedGrandPrixBanner(
                             Text(
                                 text = if (isWidescreen) {
                                     if (isNextUpcoming) "/ ROUND ${format2Digits(race.round)} • NEXT UPCOMING ROUND /"
-                                    else if (isFinished) "/ ROUND ${format2Digits(race.round)} • OFFICIAL RESULT /"
+                                    else if (isFinished) "/ ROUND ${format2Digits(race.round)} • RACE RESULT /"
                                     else "/ ROUND ${format2Digits(race.round)} • CALENDAR /"
                                 } else {
                                     if (isNextUpcoming) "ROUND ${format2Digits(race.round)} • NEXT EVENT"
@@ -651,8 +651,37 @@ private fun FeaturedGrandPrixBanner(
                 }
 
                 // Podium Snippet (for finished) OR Weekend Preview (for upcoming)
-                if (isFinished && !podium.isNullOrEmpty()) {
-                    BannerPodiumSnippet(podium = podium, isWidescreen = isWidescreen)
+                if (isFinished) {
+                    if (!podium.isNullOrEmpty()) {
+                        BannerPodiumSnippet(podium = podium, isWidescreen = isWidescreen)
+                    } else {
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = Color(0x28000000),
+                            border = BorderStroke(1.dp, Color(0x22FFFFFF)),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.EmojiEvents,
+                                    contentDescription = null,
+                                    tint = GoldPodium,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Text(
+                                    text = "GRAND PRIX FINAL CLASSIFICATION",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Black,
+                                    fontFamily = FontFamily.Monospace,
+                                    color = MonoWhite
+                                )
+                            }
+                        }
+                    }
                 } else if (isWidescreen) {
                     // Widescreen Single Row
                     Row(
@@ -690,7 +719,7 @@ private fun FeaturedGrandPrixBanner(
                             border = BorderStroke(1.dp, HairlineBorder)
                         ) {
                             Text(
-                                text = "${race.totalLaps} LAPS • ${race.trackLength}",
+                                text = "${race.totalLaps} LAPS",
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                                 fontSize = 11.sp,
                                 fontFamily = FontFamily.Monospace,
@@ -842,7 +871,7 @@ private fun BannerPodiumSnippet(
                     modifier = Modifier.size(14.dp)
                 )
                 Text(
-                    text = "OFFICIAL PODIUM CLASSIFICATION",
+                    text = "PODIUM CLASSIFICATION",
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Black,
                     fontFamily = FontFamily.Monospace,
@@ -1116,18 +1145,47 @@ private fun RaceBentoGridCard(
                 }
 
                 // Middle Section: Countdown for Next Upcoming; Podium for Finished; Telemetry Specs for Upcoming
-                if (isFinished && !podium.isNullOrEmpty()) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(Color(0x22000000))
-                            .border(1.dp, Color(0x18FFFFFF), RoundedCornerShape(10.dp))
-                            .padding(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        podium.take(3).forEach { item ->
-                            PodiumMicroPill(item = item)
+                if (isFinished) {
+                    if (!podium.isNullOrEmpty()) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(Color(0x22000000))
+                                .border(1.dp, Color(0x18FFFFFF), RoundedCornerShape(10.dp))
+                                .padding(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            podium.take(3).forEach { item ->
+                                PodiumMicroPill(item = item)
+                            }
+                        }
+                    } else {
+                        Surface(
+                            shape = RoundedCornerShape(10.dp),
+                            color = Color(0x22000000),
+                            border = BorderStroke(1.dp, Color(0x18FFFFFF)),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.EmojiEvents,
+                                    contentDescription = null,
+                                    tint = GoldPodium,
+                                    modifier = Modifier.size(15.dp)
+                                )
+                                Text(
+                                    text = "GRAND PRIX FINAL CLASSIFICATION",
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    fontFamily = FontFamily.Monospace,
+                                    color = MonoWhite
+                                )
+                            }
                         }
                     }
                 } else if (isNextUpcoming) {
@@ -1146,7 +1204,7 @@ private fun RaceBentoGridCard(
                     ) {
                         Column {
                             Text(
-                                text = "TOTAL DISTANCE",
+                                text = "RACE DISTANCE",
                                 fontSize = 9.sp,
                                 fontFamily = FontFamily.Monospace,
                                 color = MonoMuted
@@ -1162,17 +1220,17 @@ private fun RaceBentoGridCard(
 
                         Column(horizontalAlignment = Alignment.End) {
                             Text(
-                                text = "TRACK LENGTH",
+                                text = "FORMAT",
                                 fontSize = 9.sp,
                                 fontFamily = FontFamily.Monospace,
                                 color = MonoMuted
                             )
                             Text(
-                                text = race.trackLength,
-                                fontSize = 11.sp,
+                                text = if (race.isSprint) "SPRINT WEEKEND" else "STANDARD WEEKEND",
+                                fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
                                 fontFamily = FontFamily.Monospace,
-                                color = flagColor
+                                color = if (race.isSprint) F1Red else MonoWhite
                             )
                         }
                     }

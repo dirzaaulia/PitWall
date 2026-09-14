@@ -307,7 +307,7 @@ fun AppInfoScreen() {
                             ) {
                                 Icon(Icons.AutoMirrored.Filled.OpenInNew, contentDescription = null, tint = Color(0xFF00D2BE), modifier = Modifier.size(15.dp))
                                 Text(
-                                    text = "OFFICIAL PRIVACY POLICY",
+                                    text = "PRIVACY POLICY",
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Black,
                                     fontFamily = FontFamily.Monospace,
@@ -396,7 +396,7 @@ fun AppInfoScreen() {
                     )
 
                     val developerLinks = listOf(
-                        Pair("OFFICIAL PORTFOLIO", "dirzaaulia.com"),
+                        Pair("DEVELOPER PORTFOLIO", "dirzaaulia.com"),
                         Pair("KO-FI SUPPORTER", "ko-fi.com/dirzaaulia"),
                         Pair("SAWERIA DONATION", "saweria.co/dirzaaulia")
                     )
@@ -499,9 +499,9 @@ fun AppInfoScreen() {
                     }
 
                     val sources = listOf(
-                        Pair("Jolpica F1 API (Ergast V2 Spec)", "Grand Prix schedules, driver standings, constructor points, lap times & official race results."),
+                        Pair("Jolpica F1 API (Ergast V2 Spec)", "Grand Prix schedules, driver standings, constructor points, lap times & race results."),
                         Pair("F1DB (Formula 1 Database)", "High-resolution normalized SVG circuit track vectors for 24 World Championship venues."),
-                        Pair("Formula 1 Official Media CDN", "Driver headshots, team badges, vehicle livery renders and constructor assets."),
+                        Pair("Formula 1 Media CDN", "Driver headshots, team badges, vehicle livery renders and constructor assets."),
                         Pair("FlagCDN International Vectors", "ISO-standardized national flag vector graphics for circuits, drivers, and constructor origins.")
                     )
 

@@ -72,3 +72,43 @@ object SessionCountdownScheduler {
         )
     }
 }
+
+/**
+ * Determines whether a given Grand Prix race has concluded.
+ * - If the race date is prior to today (UTC), it is definitely finished.
+ * - If the race date is in the future, it is not finished.
+ * - If the race date is today, checks whether the race session start time + standard 2-hour race duration
+ *   (120 minutes) has passed. If no time is specified, defaults to 16:00 UTC cutoff.
+ */
+fun isRaceFinished(
+    race: Race,
+    nowEpochMillis: Long = GMTDate().timestamp
+): Boolean {
+    if (race.date.isBlank()) return false
+    val today = getCurrentDateIso()
+    if (race.date < today) return true
+    if (race.date > today) return false
+
+    // Race date is TODAY (e.g. Sunday race day).
+    val raceTime = race.schedule?.race?.time ?: race.time
+    val raceEpoch = parseUtcDateTimeToEpochMillis(race.date, raceTime)
+    return if (raceEpoch != null) {
+        // Official F1 regulations cap standard racing time to 2 hours (120 minutes)
+        nowEpochMillis >= raceEpoch + (120L * 60L * 1000L)
+    } else {
+        // Fallback if no start time: European and Asian races finish by 16:00 UTC
+        val gmt = GMTDate(nowEpochMillis)
+        gmt.hours >= 16
+    }
+}
+
+/**
+ * Finds the next upcoming race in the schedule.
+ * If all races are finished, falls back to the last race in the season.
+ */
+fun findNextUpcomingRace(
+    races: List<Race>,
+    nowEpochMillis: Long = GMTDate().timestamp
+): Race? {
+    return races.firstOrNull { !isRaceFinished(it, nowEpochMillis) } ?: races.lastOrNull()
+}

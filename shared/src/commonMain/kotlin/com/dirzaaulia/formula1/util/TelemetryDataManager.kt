@@ -28,18 +28,19 @@ object TelemetryDataManager {
     val LIVE_2026_RACE = ArchiveRaceOption(11364, 14, "Spanish Grand Prix", "Madrid", "Spain", "🇪🇸", "madring-1", 66, "5.474 KM")
 
     val OFFICIAL_2026_RACES = listOf(
+        ArchiveRaceOption(11364, 14, "Spanish Grand Prix", "Madrid", "Spain", "🇪🇸", "madring-1", 66, "5.474 KM"),
         ArchiveRaceOption(11361, 13, "Italian Grand Prix", "Monza", "Italy", "🇮🇹", "monza-7", 53, "5.793 KM"),
+        ArchiveRaceOption(11353, 13, "Dutch Grand Prix", "Zandvoort", "Netherlands", "🇳🇱", "zandvoort-5", 72, "4.259 KM"),
+        ArchiveRaceOption(11342, 12, "Hungarian Grand Prix", "Hungaroring", "Hungary", "🇭🇺", "hungaroring-3", 70, "4.381 KM"),
         ArchiveRaceOption(11326, 12, "British Grand Prix", "Silverstone", "United Kingdom", "🇬🇧", "silverstone-8", 52, "5.891 KM"),
         ArchiveRaceOption(11334, 11, "Belgian Grand Prix", "Spa-Francorchamps", "Belgium", "🇧🇪", "spa-francorchamps-4", 44, "7.004 KM"),
         ArchiveRaceOption(11307, 10, "Spanish Grand Prix", "Catalunya", "Spain", "🇪🇸", "catalunya-6", 66, "4.675 KM"),
-        ArchiveRaceOption(11299, 8, "Monaco Grand Prix", "Monte Carlo", "Monaco", "🇲🇨", "monaco-6", 78, "3.337 KM"),
-        ArchiveRaceOption(11234, 1, "Australian Grand Prix", "Melbourne", "Australia", "🇦🇺", "melbourne-2", 58, "5.278 KM"),
-        ArchiveRaceOption(11261, 4, "Bahrain Grand Prix", "Sakhir", "Bahrain", "🇧🇭", "bahrain-1", 57, "5.412 KM"),
-        ArchiveRaceOption(11269, 5, "Saudi Arabian GP", "Jeddah", "Saudi Arabia", "🇸🇦", "jeddah-1", 50, "6.174 KM"),
-        ArchiveRaceOption(11280, 6, "Miami Grand Prix", "Miami", "United States", "🇺🇸", "miami-1", 57, "5.412 KM"),
         ArchiveRaceOption(11315, 9, "Austrian Grand Prix", "Spielberg", "Austria", "🇦🇹", "spielberg-3", 71, "4.318 KM"),
-        ArchiveRaceOption(11342, 12, "Hungarian Grand Prix", "Hungaroring", "Hungary", "🇭🇺", "hungaroring-3", 70, "4.381 KM"),
-        ArchiveRaceOption(11353, 13, "Dutch Grand Prix", "Zandvoort", "Netherlands", "🇳🇱", "zandvoort-5", 72, "4.259 KM")
+        ArchiveRaceOption(11299, 8, "Monaco Grand Prix", "Monte Carlo", "Monaco", "🇲🇨", "monaco-6", 78, "3.337 KM"),
+        ArchiveRaceOption(11280, 6, "Miami Grand Prix", "Miami", "United States", "🇺🇸", "miami-1", 57, "5.412 KM"),
+        ArchiveRaceOption(11269, 5, "Saudi Arabian GP", "Jeddah", "Saudi Arabia", "🇸🇦", "jeddah-1", 50, "6.174 KM"),
+        ArchiveRaceOption(11261, 4, "Bahrain Grand Prix", "Sakhir", "Bahrain", "🇧🇭", "bahrain-1", 57, "5.412 KM"),
+        ArchiveRaceOption(11234, 1, "Australian Grand Prix", "Melbourne", "Australia", "🇦🇺", "melbourne-2", 58, "5.278 KM")
     )
 
     // Complete Official 2026 Formula 1 Grid (11 Teams, 22 Drivers)
