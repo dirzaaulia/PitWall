@@ -1,13 +1,13 @@
-# FormulaTrackr — System Architecture & Technical Specification
+# PitWall — System Architecture & Technical Specification
 
 > **Authoritative Context Document for AI Models, LLMs, and Developers**  
-> *Last Updated: 2026-09-11 | FormulaTrackr Kotlin Multiplatform Application*
+> *Last Updated: 2026-09-11 | PitWall Kotlin Multiplatform Application*
 
 ---
 
 ## 1. Executive Summary & Vision
 
-**FormulaTrackr** is a high-performance, modern Formula 1 tracking and telemetry application built with **Kotlin Multiplatform (KMP)** and **Compose Multiplatform (CMP)**. The application provides Formula 1 fans and engineers with real-time race telemetry, historical race archives, live session tracking, championship standings, race schedules, and interactive circuit visualizations.
+**PitWall** is a high-performance, modern Formula 1 tracking and telemetry application built with **Kotlin Multiplatform (KMP)** and **Compose Multiplatform (CMP)**. The application provides Formula 1 fans and engineers with real-time race telemetry, historical race archives, live session tracking, championship standings, race schedules, and interactive circuit visualizations.
 
 Target Platforms:
 - **Android** (`:app` module): Native Android application targeting SDK 36 (minSdk 29) with edge-to-edge Compose UI, splash screen API, and Chucker network inspection.

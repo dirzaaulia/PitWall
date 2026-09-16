@@ -1,4 +1,4 @@
-# FormulaTrackr: Google Play Store ASO Strategy & Launch Kit
+# PitWall: Google Play Store ASO Strategy & Launch Kit
 
 ---
 
@@ -6,7 +6,7 @@
 
 ### 1.1 Critical IP & Trademark Notice
 To comply with Google Play's **Impersonation and Intellectual Property Policy** and avoid metadata rejections:
-- **Title Rule**: Do NOT use `F1®` or `Formula 1` alone as the title. The app name must lead with the distinctive brand (`FormulaTrackr`) followed by descriptive search terms separated by a colon or hyphen.
+- **Title Rule**: Do NOT use `F1®` or `Formula 1` alone as the title. The app name must lead with the distinctive brand (`PitWall`) followed by descriptive search terms separated by a colon or hyphen.
 - **Fair Use Formulation**: Use `"for F1 fans"`, `"F1 Live Timing Companion"`, or `"Unofficial Pit Wall Telemetry"`.
 - **Mandatory Disclaimer**: Must appear verbatim at the top or bottom of the Play Store Long Description and inside the app (`AppInfo` screen):
   > *This application is an unofficial fan companion and is not associated, affiliated, endorsed, or sponsored by Formula One Licensing B.V., Formula One Management, or any of their affiliated entities. F1, FORMULA ONE, FORMULA 1, FIA FORMULA ONE WORLD CHAMPIONSHIP, GRAND PRIX, and related marks are trademarks of Formula One Licensing B.V.*
@@ -44,9 +44,9 @@ Google Play enforces a strict 30-character limit for the app title.
 ### 2.3 Long Description (Formatted for Google Play Console)
 
 ```text
-Experience Formula 1 like an engineer on the pit wall. FormulaTrackr delivers next-generation live timing, deep telemetry analysis, instant race control messages, and historical race archives directly to your Android device.
+Experience Formula 1 like an engineer on the pit wall. PitWall delivers next-generation live timing, deep telemetry analysis, instant race control messages, and historical race archives directly to your Android device.
 
-Whether you are tracking live weekend sessions or analyzing past Grand Prix strategies, FormulaTrackr puts comprehensive circuit data at your fingertips with zero clutter and blazing performance.
+Whether you are tracking live weekend sessions or analyzing past Grand Prix strategies, PitWall puts comprehensive circuit data at your fingertips with zero clutter and blazing performance.
 
 ==================================================
 KEY FEATURES & HIGHLIGHTS

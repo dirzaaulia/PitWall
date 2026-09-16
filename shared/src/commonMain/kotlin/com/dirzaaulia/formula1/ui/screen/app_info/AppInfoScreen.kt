@@ -275,7 +275,7 @@ fun AppInfoScreen() {
                     }
 
                     Text(
-                        text = "FormulaTrackr respects your digital privacy. This application does not collect, log, track, or sell any personal data or device identifiers. All live telemetry deltas, driver statistics, and calendar schedules are public factual data retrieved anonymously.",
+                        text = "PitWall respects your digital privacy. This application does not collect, log, track, or sell any personal data or device identifiers. All live telemetry deltas, driver statistics, and calendar schedules are public factual data retrieved anonymously.",
                         fontSize = 12.sp,
                         color = MonoSilver,
                         lineHeight = 18.sp
@@ -389,7 +389,7 @@ fun AppInfoScreen() {
                     }
 
                     Text(
-                        text = "FormulaTrackr is designed, engineered and maintained as an independent high-performance motorsport telemetry tool. You can support future development and server maintenance below:",
+                        text = "PitWall is designed, engineered and maintained as an independent high-performance motorsport telemetry tool. You can support future development and server maintenance below:",
                         fontSize = 12.sp,
                         color = MonoSilver,
                         lineHeight = 18.sp
