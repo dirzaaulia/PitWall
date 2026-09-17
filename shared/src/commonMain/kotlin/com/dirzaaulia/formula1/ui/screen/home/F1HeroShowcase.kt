@@ -349,7 +349,7 @@ fun F1HeroShowcase(
                     )
                     Spacer(Modifier.width(4.dp))
                     Text(
-                        text = "[ ⚡ LAUNCH LIVE TIMING ]",
+                        text = "[ LAUNCH LIVE TIMING ]",
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Black,
                         fontFamily = FontFamily.Monospace,

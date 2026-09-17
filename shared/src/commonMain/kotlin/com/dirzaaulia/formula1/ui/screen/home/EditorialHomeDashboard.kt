@@ -492,7 +492,7 @@ private fun FloatingTelemetryHub(
                         modifier = Modifier.size(13.dp)
                     )
                     Text(
-                        text = "⚡ LAUNCH",
+                        text = "LAUNCH",
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Black,
                         fontFamily = FontFamily.Monospace,
