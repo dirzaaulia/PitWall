@@ -1332,32 +1332,6 @@ private fun DynamicIslandPlayer(
                                 )
                             }
                         }
-
-                        // F1 Login Pill (Always visible & accessible in both modes)
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(5.dp),
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(14.dp))
-                                .background(if (F1LiveTimingService.isConnected()) Color(0x2200E676) else Color(0x18FFFFFF))
-                                .border(1.dp, if (F1LiveTimingService.isConnected()) Color(0xFF00E676) else Color(0x30FFFFFF), RoundedCornerShape(14.dp))
-                                .clickable { onOpenF1Login() }
-                                .padding(horizontal = 8.dp, vertical = 5.dp)
-                        ) {
-                            Icon(
-                                imageVector = if (F1LiveTimingService.isConnected()) Icons.Default.Check else Icons.Default.Lock,
-                                contentDescription = null,
-                                tint = if (F1LiveTimingService.isConnected()) Color(0xFF00E676) else Color(0xFFCAD1E0),
-                                modifier = Modifier.size(11.dp)
-                            )
-                            Text(
-                                text = if (F1LiveTimingService.isConnected()) "F1 LINKED" else "F1 LOGIN",
-                                color = if (F1LiveTimingService.isConnected()) Color(0xFF00E676) else Color(0xFFCAD1E0),
-                                fontSize = 8.5.sp,
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = FontFamily.Monospace
-                            )
-                        }
                     }
                 }
             }
@@ -1450,34 +1424,6 @@ private fun DynamicIslandPlayer(
                             )
                         }
                     }
-
-                    // Right: In LIVE mode show F1 LOGIN button, or Driver Pill in ARCHIVE mode
-                    if (mode == TelemetryMode.LIVE) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(if (F1LiveTimingService.isConnected()) Color(0x2200E676) else Color(0x22FFB300))
-                                .border(1.dp, if (F1LiveTimingService.isConnected()) Color(0xFF00E676) else Color(0x44FFB300), RoundedCornerShape(12.dp))
-                                .clickable { onOpenF1Login() }
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
-                        ) {
-                            Icon(
-                                imageVector = if (F1LiveTimingService.isConnected()) Icons.Default.Check else Icons.Default.Lock,
-                                contentDescription = null,
-                                tint = if (F1LiveTimingService.isConnected()) Color(0xFF00E676) else Color(0xFFFFB300),
-                                modifier = Modifier.size(11.dp)
-                            )
-                            Text(
-                                text = if (F1LiveTimingService.isConnected()) "F1 LINKED" else "F1 LOGIN",
-                                color = if (F1LiveTimingService.isConnected()) Color(0xFF00E676) else Color(0xFFFFB300),
-                                fontSize = 8.5.sp,
-                                fontWeight = FontWeight.Black,
-                                fontFamily = FontFamily.Monospace
-                            )
-                        }
-                    } else {
                         Row(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(16.dp))
@@ -1501,7 +1447,6 @@ private fun DynamicIslandPlayer(
                             )
                         }
                     }
-                }
 
                 // Row 2: View Toggles & Replay Bar / Live Status (Always visible)
                 Row(
@@ -1607,31 +1552,6 @@ private fun DynamicIslandPlayer(
                                     color = if (isLiveActive) TelemetryGreen else F1Red,
                                     fontSize = 8.5.sp,
                                     fontWeight = FontWeight.Black,
-                                    fontFamily = FontFamily.Monospace
-                                )
-                            }
-
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp),
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(10.dp))
-                                    .background(if (F1LiveTimingService.isConnected()) Color(0x2200E676) else Color(0x18FFFFFF))
-                                    .border(1.dp, if (F1LiveTimingService.isConnected()) Color(0xFF00E676) else Color(0x30FFFFFF), RoundedCornerShape(10.dp))
-                                    .clickable { onOpenF1Login() }
-                                    .padding(horizontal = 7.dp, vertical = 3.dp)
-                            ) {
-                                Icon(
-                                    imageVector = if (F1LiveTimingService.isConnected()) Icons.Default.Check else Icons.Default.Lock,
-                                    contentDescription = null,
-                                    tint = if (F1LiveTimingService.isConnected()) Color(0xFF00E676) else Color(0xFFCAD1E0),
-                                    modifier = Modifier.size(10.dp)
-                                )
-                                Text(
-                                    text = if (F1LiveTimingService.isConnected()) "F1 LINKED" else "F1 LOGIN",
-                                    color = if (F1LiveTimingService.isConnected()) Color(0xFF00E676) else Color(0xFFCAD1E0),
-                                    fontSize = 8.5.sp,
-                                    fontWeight = FontWeight.Bold,
                                     fontFamily = FontFamily.Monospace
                                 )
                             }

@@ -150,14 +150,6 @@ fun AppInfoScreen() {
                                     }
                                 }
                             }
-
-                            Text(
-                                text = "FIA F1 COMPANION",
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold,
-                                fontFamily = FontFamily.Monospace,
-                                color = MonoMuted
-                            )
                         }
 
                         // App Title
